@@ -27,7 +27,6 @@ public class MonitoringDataProcessingServiceTest {
 	private UserAgent eve = null;
 	
 	private static final String adamsPass = "adamspass";
-	private static final String evesPass = "evespass";
 	private static final String testServiceClass = "i5.las2peer.services.monitoring.processing.MonitoringDataProcessingService";
 
 	@Before
@@ -75,18 +74,17 @@ public class MonitoringDataProcessingServiceTest {
 	}
 	
 	@Test
-	public void testGroupMessages() {
+	public void testDefaultStartup() {
 		
 		
 		Client c = new Client(HTTP_ADDRESS, HTTP_PORT, adam.getLoginName(), adamsPass);
-		Client c2 = new Client(HTTP_ADDRESS, HTTP_PORT, eve.getLoginName(), evesPass);
 		
 		try {
-			//Login as both Adam and Eve
+			//Login as Adam
 			c.connect();
-			c2.connect();
 			
-			assertTrue(true);
+			Object result = c.invoke(testServiceClass, "getMessages");
+			assertTrue((boolean)result);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -98,7 +96,6 @@ public class MonitoringDataProcessingServiceTest {
 		
 		//and logout both Agents
 		c.disconnect();
-		c2.disconnect();
 		
 		} catch (Exception e) {
 			e.printStackTrace();
