@@ -20,7 +20,6 @@ public class MonitoringDataProcessingService extends Service{
 	private static final String AGENT_PASS = "ProcessingAgentPass";
 	private MonitoringAgent receivingAgent;
 	public MonitoringDataProcessingService(){
-		
 	}
 	
 	

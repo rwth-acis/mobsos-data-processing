@@ -83,7 +83,7 @@ public class MonitoringDataProcessingServiceTest {
 			//Login as Adam
 			c.connect();
 			
-			Object result = c.invoke(testServiceClass, "getReceivingAgentId");
+			Object result = c.invoke(testServiceClass, "getReceivingAgentId", "Just a Test");
 			assertEquals(1L,result);
 			
 		} catch (Exception e) {
