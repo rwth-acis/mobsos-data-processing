@@ -1,6 +1,6 @@
 package i5.las2peer.services.monitoring.processing;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import i5.las2peer.httpConnector.HttpConnector;
 import i5.las2peer.httpConnector.client.Client;
@@ -83,8 +83,8 @@ public class MonitoringDataProcessingServiceTest {
 			//Login as Adam
 			c.connect();
 			
-			Object result = c.invoke(testServiceClass, "getMessages");
-			assertTrue((boolean)result);
+			Object result = c.invoke(testServiceClass, "getReceivingAgentId");
+			assertEquals(1L,result);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
