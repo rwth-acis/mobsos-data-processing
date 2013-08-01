@@ -14,12 +14,19 @@ import i5.las2peer.tools.CryptoException;
  * 
  * MonitoringDataProcessingService.java
  * <br>
+ * This service is responsible for processing incoming monitoring data.
+ * It tests the data for correctness and stores them in a relational database.
+ * The provision will be done by another service.
+ * 
+ * @author Peter de Lange
  * 
  */
 public class MonitoringDataProcessingService extends Service{
-	private static final String AGENT_PASS = "ProcessingAgentPass";
-	private MonitoringAgent receivingAgent;
+	private static final String AGENT_PASS = "ProcessingAgentPass"; //The pass phrase for the receivingAgent
+	private MonitoringAgent receivingAgent; //This agent will be responsible for receiving all incoming message
+	
 	public MonitoringDataProcessingService(){
+		setFieldValues(); //This sets the values of the property file
 	}
 	
 	
@@ -42,7 +49,7 @@ public class MonitoringDataProcessingService extends Service{
 		if(receivingAgent == null){
 			System.out.println("Message from invokation: " + greetings);
 			try {
-				receivingAgent = MonitoringAgent.createReceivingMonitoringAgent(AGENT_PASS);
+				receivingAgent = MonitoringAgent.createMonitoringAgent(AGENT_PASS);
 				receivingAgent.unlockPrivateKey(AGENT_PASS);
 				getActiveNode().storeAgent(receivingAgent);
 				getActiveNode().registerReceiver(receivingAgent);
