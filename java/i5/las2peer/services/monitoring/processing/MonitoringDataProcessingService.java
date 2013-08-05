@@ -7,11 +7,12 @@ import i5.las2peer.security.Agent;
 import i5.las2peer.security.AgentException;
 import i5.las2peer.security.L2pSecurityException;
 import i5.las2peer.security.MonitoringAgent;
+import i5.las2peer.services.monitoring.processing.database.SQLDatabase;
+import i5.las2peer.services.monitoring.processing.database.SQLDatabaseType;
 import i5.las2peer.tools.CryptoException;
 
 import java.util.HashMap;
 import java.util.Map;
-
 
 
 /**
@@ -31,16 +32,27 @@ public class MonitoringDataProcessingService extends Service{
 	private Map<Long, String> monitoredServices = new HashMap<Long, String>(); 
 	
 	private String databaseName = "to be done";
-	private	String databaseType = "to be done";
+	private int databaseTypeInt = -1; //See SQLDatabaseType for more information
+	private	SQLDatabaseType databaseType;
 	private String databaseHost = "to be done";
-	private int databasePort = 123;
+	private int databasePort = -1;
 	private String databaseUser = "to be done";
 	private String databasePassword = "to be done";
 	
+	private SQLDatabase database;
 	
 	public MonitoringDataProcessingService(){
 		setFieldValues(); //This sets the values of the property file
-		//TODO: Setup database here
+		this.databaseType = SQLDatabaseType.getSQLDatabaseType(databaseTypeInt);
+		this.database = new SQLDatabase(this.databaseType, this.databaseUser, this.databasePassword,
+				this.databaseName, this.databaseHost, this.databasePort);
+		try {
+			this.database.connect();
+			System.out.println("Monitoring: Database connected!");
+		} catch (Exception e) {
+			System.out.println("Monitoring: Could not connect to database!");
+			e.printStackTrace();
+		}
 	}
 	
 	
