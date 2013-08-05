@@ -7,6 +7,7 @@ import i5.las2peer.security.Agent;
 import i5.las2peer.security.AgentException;
 import i5.las2peer.security.L2pSecurityException;
 import i5.las2peer.security.MonitoringAgent;
+import i5.las2peer.services.monitoring.processing.database.DatabaseInsertStatement;
 import i5.las2peer.services.monitoring.processing.database.SQLDatabase;
 import i5.las2peer.services.monitoring.processing.database.SQLDatabaseType;
 import i5.las2peer.tools.CryptoException;
@@ -82,20 +83,30 @@ public class MonitoringDataProcessingService extends Service{
 	private boolean processMessages(MonitoringMessage[] messages) {
 		boolean returnStatement = true;
 		for(MonitoringMessage message : messages){
-			if(message == null) //Happens when the node has sent its last messages
+			if(message == null){ //Happens when a node has sent its last messages
 				return returnStatement;
-			if(message.getEvent() == Event.SERVICE_ADD_TO_MONITORING){
-				monitoredServices.put(message.getSourceAgentId(), message.getRemarks());
 			}
-			else if(Math.abs(message.getEvent().getCode()) >= 7000 && (Math.abs(message.getEvent().getCode()) < 8000)){ //Service Messages
+			else if(message.getEvent() == Event.NODE_STATUS_CHANGE && message.getRemarks().equals("RUNNING")){ //Running -> We got a representation
+				returnStatement = persistMessage(message, "NODE");
+				if(!returnStatement)
+					return returnStatement;
+			}
+			else if(message.getEvent() == Event.SERVICE_ADD_TO_MONITORING){
+				monitoredServices.put(message.getSourceAgentId(), message.getRemarks());
+				returnStatement = persistMessage(message, "AGENT");
+				if(!returnStatement)
+					return returnStatement;
+			//	persistMessage(message, "SERVICE");
+			}
+			if(Math.abs(message.getEvent().getCode()) >= 7000 && (Math.abs(message.getEvent().getCode()) < 8000)){ //Service Messages
 				if(monitoredServices.containsKey(message.getSourceAgentId())){
-					returnStatement = persistMessage(message);
+					returnStatement = persistMessage(message, "MESSAGE");
 					if(!returnStatement)
 						return returnStatement;
 				}
 			}
 			else{
-				returnStatement = persistMessage(message);
+				returnStatement = persistMessage(message, "MESSAGE");
 				if(!returnStatement)
 					return returnStatement;
 			}
@@ -104,10 +115,16 @@ public class MonitoringDataProcessingService extends Service{
 	}
 	
 	
-	private boolean persistMessage(MonitoringMessage message) {
-		// TODO store Message
-		System.out.println("Monitoring: Persisting message with type " + message.getEvent());
-		return true;
+	private boolean persistMessage(MonitoringMessage message, String table) {
+		boolean returnStatement = false;
+		try {
+			String insertStatement = DatabaseInsertStatement.returnInsertStatement(message, database.getJdbcInfo(), table);
+			returnStatement = database.store(insertStatement);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return returnStatement;
 	}
 	
 	
