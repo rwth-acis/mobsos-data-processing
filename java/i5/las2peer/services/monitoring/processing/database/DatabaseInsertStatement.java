@@ -112,6 +112,10 @@ public class DatabaseInsertStatement {
 			else if(monitoringMessage.getRemarks().equals("MonitoringAgent")){
 				agentType = "MONITORING";
 			}
+			else if(monitoringMessage.getRemarks().equals("Mediator")){
+			//Thats right, we treat mediators as agents (as from a monitoring point of view, this is the same)
+				agentType = "MEDIATOR";
+			}
 			else{
 				throw new Exception("Unknown remarks entry for persisting agent entity: " + monitoringMessage.getRemarks());
 			}
