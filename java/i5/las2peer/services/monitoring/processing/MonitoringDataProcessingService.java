@@ -83,35 +83,82 @@ public class MonitoringDataProcessingService extends Service{
 	private boolean processMessages(MonitoringMessage[] messages) {
 		boolean returnStatement = true;
 		for(MonitoringMessage message : messages){
-			if(message == null){ //Happens when a node has sent its last messages
+			
+			// Happens when a node has sent its last messages
+			if(message == null){
 				return returnStatement;
 			}
-			else if(message.getEvent() == Event.NODE_STATUS_CHANGE && message.getRemarks().equals("RUNNING")){ //Running -> We got a representation
+			
+			// Add node to database (running means we got an id representation)
+			else if(message.getEvent() == Event.NODE_STATUS_CHANGE && message.getRemarks().equals("RUNNING")){
 				returnStatement = persistMessage(message, "NODE");
 				if(!returnStatement)
 					return returnStatement;
+				
+				returnStatement = persistMessage(message, "MESSAGE");
+				if(!returnStatement)
+					return returnStatement;
 			}
+			//Add unregister date to all registered agents at this node
+			else if(message.getEvent() == Event.NODE_STATUS_CHANGE && message.getRemarks().equals("CLOSING")){
+				returnStatement = persistMessage(message, "REGISTERED_AT");
+				if(!returnStatement)
+					return returnStatement;
+			}
+			// Add service to monitored service list and add service, service agent, 'registered at' and message to database
 			else if(message.getEvent() == Event.SERVICE_ADD_TO_MONITORING){
 				monitoredServices.put(message.getSourceAgentId(), message.getRemarks());
 				returnStatement = persistMessage(message, "AGENT");
 				if(!returnStatement)
 					return returnStatement;
-			//	persistMessage(message, "SERVICE");
+				
+				returnStatement = persistMessage(message, "SERVICE");
+				if(!returnStatement)
+					return returnStatement;
+				
+				returnStatement = persistMessage(message, "REGISTERED_AT");
+				if(!returnStatement)
+					return returnStatement;
+				
+				returnStatement = persistMessage(message, "MESSAGE");
+				if(!returnStatement)
+					return returnStatement;
 			}
-			if(Math.abs(message.getEvent().getCode()) >= 7000 && (Math.abs(message.getEvent().getCode()) < 8000)){ //Service Messages
+			
+			//Add agent to database 
+			else if(message.getEvent() == Event.AGENT_REGISTERED && !message.getRemarks().equals("ServiceAgent")){
+				returnStatement = persistMessage(message, "AGENT");
+				if(!returnStatement)
+					return returnStatement;
+				
+				returnStatement = persistMessage(message, "REGISTERED_AT");
+				if(!returnStatement)
+					return returnStatement;
+				
+				returnStatement = persistMessage(message, "MESSAGE");
+				if(!returnStatement)
+					return returnStatement;
+			}
+			
+			// If enabled for monitoring, add service message to database
+			else if(Math.abs(message.getEvent().getCode()) >= 7000 && (Math.abs(message.getEvent().getCode()) < 8000)){
 				if(monitoredServices.containsKey(message.getSourceAgentId())){
 					returnStatement = persistMessage(message, "MESSAGE");
 					if(!returnStatement)
 						return returnStatement;
 				}
 			}
+			
+			// Just log the message
 			else{
 				returnStatement = persistMessage(message, "MESSAGE");
 				if(!returnStatement)
 					return returnStatement;
 			}
+			
 		}
 		return returnStatement;
+		
 	}
 	
 	
