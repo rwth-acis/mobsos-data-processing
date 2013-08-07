@@ -89,8 +89,9 @@ public class MonitoringDataProcessingService extends Service{
 				return returnStatement;
 			}
 			
-			// Add node to database (running means we got an id representation)
-			else if(message.getEvent() == Event.NODE_STATUS_CHANGE && message.getRemarks().equals("RUNNING")){
+			// Add node to database (running means we got an id representation) 
+			else if((message.getEvent() == Event.NODE_STATUS_CHANGE && message.getRemarks().equals("RUNNING"))
+					|| message.getEvent() == Event.NEW_NODE_NOTICE){
 				returnStatement = persistMessage(message, "NODE");
 				if(!returnStatement)
 					return returnStatement;
@@ -99,12 +100,17 @@ public class MonitoringDataProcessingService extends Service{
 				if(!returnStatement)
 					return returnStatement;
 			}
+			
 			//Add unregister date to all registered agents at this node
 			else if(message.getEvent() == Event.NODE_STATUS_CHANGE && message.getRemarks().equals("CLOSING")){
 				returnStatement = persistMessage(message, "REGISTERED_AT");
 				if(!returnStatement)
 					return returnStatement;
+				returnStatement = persistMessage(message, "MESSAGE");
+				if(!returnStatement)
+					return returnStatement;
 			}
+			
 			// Add service to monitored service list and add service, service agent, 'registered at' and message to database
 			else if(message.getEvent() == Event.SERVICE_ADD_TO_MONITORING){
 				monitoredServices.put(message.getSourceAgentId(), message.getRemarks());
@@ -148,7 +154,6 @@ public class MonitoringDataProcessingService extends Service{
 						return returnStatement;
 				}
 			}
-			
 			// Just log the message
 			else{
 				returnStatement = persistMessage(message, "MESSAGE");

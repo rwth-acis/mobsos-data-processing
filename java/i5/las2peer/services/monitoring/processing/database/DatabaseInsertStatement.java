@@ -48,7 +48,7 @@ public class DatabaseInsertStatement {
 	
 	private static String returnMessageStatement(MonitoringMessage monitoringMessage, SQLDatabaseType databaseType, String table){
 		String returnStatement;
-					
+		
 		String event =  "'" + monitoringMessage.getEvent().toString() + "'";
 		String timestamp = ", '" + new Timestamp(monitoringMessage.getTimestamp()).toString() + "'";
 		String timespan = "";
@@ -64,7 +64,7 @@ public class DatabaseInsertStatement {
 		}
 		if(monitoringMessage.getSourceNode() != null){
 			returnStatement += ", SOURCE_NODE";
-			sourceNode = ", '" + monitoringMessage.getSourceNode() + "'";
+			sourceNode = ", '" + monitoringMessage.getSourceNode().substring(0, 12) + "'";
 		}
 		if(monitoringMessage.getSourceAgentId() != null){
 			returnStatement += ", SOURCE_AGENT";
@@ -72,7 +72,7 @@ public class DatabaseInsertStatement {
 		}
 		if(monitoringMessage.getDestinationNode() != null){
 			returnStatement += ", DESTINATION_NODE";
-			destinationNode = ", '" + monitoringMessage.getDestinationNode() + "'";
+			destinationNode = ", '" + monitoringMessage.getDestinationNode().substring(0, 12) + "'";
 		}
 		if(monitoringMessage.getDestinationAgentId() != null){
 			returnStatement += ", DESTINATION_AGENT";
@@ -121,7 +121,7 @@ public class DatabaseInsertStatement {
 			}
 		}
 		else{
-			throw new Exception("Agents will only be persisted if registered at a node!"); 
+			throw new Exception("Agent entities will only be persisted if registered at a node!"); 
 		}
 		returnStatement = "INSERT INTO AGENT(AGENT_ID, TYPE) VALUES(";
 		returnStatement += monitoringMessage.getSourceAgentId() + ", '" + agentType + "') ON DUPLICATE KEY UPDATE AGENT_ID=AGENT_ID;";
@@ -143,37 +143,57 @@ public class DatabaseInsertStatement {
 	
 	private static String returnRegisteredAtStatement(MonitoringMessage monitoringMessage, SQLDatabaseType databaseType, String table) throws Exception {
 		String returnStatement;
+		if(monitoringMessage.getTimestamp() == null || monitoringMessage.getSourceNode() == null)
+			throw new Exception("Missing information for updating 'registered at' entity!");
 		String timestamp = "'" + new Timestamp(monitoringMessage.getTimestamp()).toString() + "'";
-
+		String nodeId = monitoringMessage.getSourceNode().substring(0, 12);
 		if(monitoringMessage.getEvent() == Event.NODE_STATUS_CHANGE && monitoringMessage.getRemarks().equals("CLOSING")){
 			//We need to unregister -> update statement!
 			returnStatement = "UPDATE REGISTERED_AT SET UNREGISTRATION_DATE=";
 			returnStatement += timestamp;
-			returnStatement += " WHERE RUNNING_AT='" + monitoringMessage.getSourceNode() + "';";
+			returnStatement += " WHERE RUNNING_AT='" + nodeId + "';";
 			return returnStatement;
 		}
 		
 		else{
-			if(monitoringMessage.getTimestamp() == null || monitoringMessage.getSourceAgentId() == null || monitoringMessage.getSourceNode() == null)
+			if(monitoringMessage.getSourceAgentId() == null)
 				throw new Exception("Missing information for persisting 'registered at' entity!");
 			returnStatement = "INSERT INTO REGISTERED_AT(REGISTRATION_DATE, AGENT_ID, RUNNING_AT) VALUES(";
-			returnStatement += timestamp + ", " + monitoringMessage.getSourceAgentId() + ", '" + monitoringMessage.getSourceNode() +"');";
+			returnStatement += timestamp + ", " + monitoringMessage.getSourceAgentId() + ", '" + nodeId +"');";
 			return returnStatement;
 		}
+		
 	}
 	
 	
 	private static String returnNodeStatement(MonitoringMessage monitoringMessage, SQLDatabaseType databaseType, String table) throws Exception {
 		String returnStatement;
-		
-		if(monitoringMessage.getSourceNode() == null)
-			throw new Exception("Missing information for persisting node entity!");
-
-		returnStatement = "INSERT INTO NODE(NODE_ID) VALUES(";
-		returnStatement += "'" + monitoringMessage.getSourceNode() +"');";
-		return returnStatement;
+		if(monitoringMessage.getEvent() == Event.NODE_STATUS_CHANGE){
+			if(monitoringMessage.getSourceNode() == null)
+				throw new Exception("Missing information for persisting node entity!");
+			String nodeId = monitoringMessage.getSourceNode().substring(0, 12);
+			int startingLocationPosition = monitoringMessage.getSourceNode().lastIndexOf("/") + 1;
+			String nodeLocation = monitoringMessage.getSourceNode().substring(startingLocationPosition);
+			returnStatement = "INSERT INTO NODE(NODE_ID, NODE_LOCATION) VALUES(";
+			returnStatement += "'" + nodeId +"', '" + nodeLocation + "');";
+			return returnStatement;
+		}
+		else if(monitoringMessage.getEvent() == Event.NEW_NODE_NOTICE){
+			if(monitoringMessage.getRemarks() == null)
+				throw new Exception("Missing information for persisting node entity!");
+			int nodeIdStart = monitoringMessage.getRemarks().indexOf("<");
+			int nodeLocationStart = monitoringMessage.getRemarks().lastIndexOf("/") + 1;
+			int nodeLocationEnd = monitoringMessage.getRemarks().indexOf("]");
+			String nodeId = monitoringMessage.getRemarks().substring(nodeIdStart, nodeIdStart+12);
+			String nodeLocation = monitoringMessage.getRemarks().substring(nodeLocationStart, nodeLocationEnd);
+			returnStatement = "INSERT INTO NODE(NODE_ID, NODE_LOCATION) VALUES(";
+			returnStatement += "'" + nodeId +"', '" + nodeLocation + "');";
+			return returnStatement;
+		}
+		else{
+			throw new Exception("Node persistence only at new node notice or node creation events!");
+		}
 	}
-
+	
+	
 }
-
-
