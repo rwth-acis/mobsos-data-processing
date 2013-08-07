@@ -133,7 +133,7 @@ public class DatabaseInsertStatement {
 		String returnStatement;
 		
 		if(monitoringMessage.getSourceAgentId() == null || monitoringMessage.getRemarks() == null)
-			throw new Exception("Missing information for persisting node entity!");
+			throw new Exception("Missing information for persisting service entity!");
 		
 		returnStatement = "INSERT INTO SERVICE(AGENT_ID, SERVICE_CLASS_NAME) VALUES(";
 		returnStatement += monitoringMessage.getSourceAgentId() + ", '" + monitoringMessage.getRemarks() +"') ON DUPLICATE KEY UPDATE AGENT_ID=AGENT_ID;";
@@ -144,22 +144,28 @@ public class DatabaseInsertStatement {
 	private static String returnRegisteredAtStatement(MonitoringMessage monitoringMessage, SQLDatabaseType databaseType, String table) throws Exception {
 		String returnStatement;
 		if(monitoringMessage.getTimestamp() == null || monitoringMessage.getSourceNode() == null)
-			throw new Exception("Missing information for updating 'registered at' entity!");
+			throw new Exception("Missing information for 'registered at' entity!");
+	
 		String timestamp = "'" + new Timestamp(monitoringMessage.getTimestamp()).toString() + "'";
 		String nodeId = monitoringMessage.getSourceNode().substring(0, 12);
-		if(monitoringMessage.getEvent() == Event.NODE_STATUS_CHANGE && monitoringMessage.getRemarks().equals("CLOSING")){
-			//We need to unregister -> update statement!
-			returnStatement = "UPDATE REGISTERED_AT SET UNREGISTRATION_DATE=";
-			returnStatement += timestamp;
-			returnStatement += " WHERE RUNNING_AT='" + nodeId + "';";
-			return returnStatement;
-		}
-		
-		else{
+	
+		if(monitoringMessage.getEvent() == Event.AGENT_REGISTERED || monitoringMessage.getEvent() == Event.SERVICE_ADD_TO_MONITORING){
 			if(monitoringMessage.getSourceAgentId() == null)
 				throw new Exception("Missing information for persisting 'registered at' entity!");
 			returnStatement = "INSERT INTO REGISTERED_AT(REGISTRATION_DATE, AGENT_ID, RUNNING_AT) VALUES(";
 			returnStatement += timestamp + ", " + monitoringMessage.getSourceAgentId() + ", '" + nodeId +"');";
+			return returnStatement;
+		}
+		else if(monitoringMessage.getEvent() == Event.AGENT_REMOVED || monitoringMessage.getEvent() == Event.SERVICE_SHUTDOWN){
+			returnStatement = "UPDATE REGISTERED_AT SET UNREGISTRATION_DATE=";
+			returnStatement += timestamp;
+			returnStatement += " WHERE RUNNING_AT='" + nodeId + "' AND AGENT_ID=" + monitoringMessage.getSourceAgentId() + " AND UNREGISTRATION_DATE IS NULL;";
+			return returnStatement;
+		}
+		else{ //We need to unregister those who have not yet unregistered -> update statement!
+			returnStatement = "UPDATE REGISTERED_AT SET UNREGISTRATION_DATE=";
+			returnStatement += timestamp;
+			returnStatement += " WHERE RUNNING_AT='" + nodeId + "' AND UNREGISTRATION_DATE IS NULL;";
 			return returnStatement;
 		}
 		
@@ -175,7 +181,8 @@ public class DatabaseInsertStatement {
 			int startingLocationPosition = monitoringMessage.getSourceNode().lastIndexOf("/") + 1;
 			String nodeLocation = monitoringMessage.getSourceNode().substring(startingLocationPosition);
 			returnStatement = "INSERT INTO NODE(NODE_ID, NODE_LOCATION) VALUES(";
-			returnStatement += "'" + nodeId +"', '" + nodeLocation + "');";
+			//Duplicate can happen because of new node notices
+			returnStatement += "'" + nodeId +"', '" + nodeLocation + "') ON DUPLICATE KEY UPDATE NODE_ID = NODE_ID;";
 			return returnStatement;
 		}
 		else if(monitoringMessage.getEvent() == Event.NEW_NODE_NOTICE){
