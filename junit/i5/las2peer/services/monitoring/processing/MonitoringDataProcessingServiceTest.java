@@ -45,7 +45,7 @@ public class MonitoringDataProcessingServiceTest {
 
 		node.registerReceiver(testService);
 
-		// start connector TODO: Setting does not make sense (need monitoring agent)
+		// start connector
 		logStream = new ByteArrayOutputStream();
 		connector = new HttpConnector();
 		connector.setSocketTimeout(10000);

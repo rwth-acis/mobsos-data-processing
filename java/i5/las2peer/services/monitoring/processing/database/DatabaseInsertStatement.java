@@ -18,6 +18,7 @@ public class DatabaseInsertStatement {
 	
 	
 	/**
+	 * 
 	 * The entry point to this class.
 	 * 
 	 * @param monitoringMessage a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information to be stored
@@ -27,6 +28,7 @@ public class DatabaseInsertStatement {
 	 * @return a SQL statement
 	 * 
 	 * @throws Exception if the given information was not correct or sufficient for the desired table entry
+	 * 
 	 */
 	public static String returnInsertStatement(MonitoringMessage monitoringMessage, SQLDatabaseType databaseType, String table) throws Exception{		
 	
@@ -262,7 +264,6 @@ public class DatabaseInsertStatement {
 			int startingLocationPosition = monitoringMessage.getSourceNode().lastIndexOf("/") + 1;
 			String nodeLocation = monitoringMessage.getSourceNode().substring(startingLocationPosition);
 			returnStatement = "INSERT INTO NODE(NODE_ID, NODE_LOCATION) VALUES(";
-			//Duplicate can happen because of new node notices
 			returnStatement += "'" + nodeId +"', '" + nodeLocation + "') ON DUPLICATE KEY UPDATE NODE_ID = NODE_ID;";
 			return returnStatement;
 		}
@@ -275,7 +276,9 @@ public class DatabaseInsertStatement {
 			String nodeId = monitoringMessage.getRemarks().substring(nodeIdStart, nodeIdStart+12);
 			String nodeLocation = monitoringMessage.getRemarks().substring(nodeLocationStart, nodeLocationEnd);
 			returnStatement = "INSERT INTO NODE(NODE_ID, NODE_LOCATION) VALUES(";
-			returnStatement += "'" + nodeId +"', '" + nodeLocation + "');";
+			//Duplicate can happen because of new node notices
+
+			returnStatement += "'" + nodeId +"', '" + nodeLocation + "') ON DUPLICATE KEY UPDATE NODE_ID = NODE_ID;";
 			return returnStatement;
 		}
 		else{

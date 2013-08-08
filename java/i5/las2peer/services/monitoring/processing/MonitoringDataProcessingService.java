@@ -33,7 +33,7 @@ public class MonitoringDataProcessingService extends Service{
 	private Map<Long, String> monitoredServices = new HashMap<Long, String>();  //A list of services that are monitored
 	
 	/**
-	 * Configuration Parameters, values will be set by the configuration file.
+	 * Configuration parameters, values will be set by the configuration file.
 	 */
 	private String databaseName;
 	private int databaseTypeInt; //See SQLDatabaseType for more information
@@ -166,9 +166,19 @@ public class MonitoringDataProcessingService extends Service{
 					return returnStatement;
 			}
 			
+			//Connector requests are only logged for monitored services or if they
+			//do not give any information on the service itself
+			else if(message.getEvent() == Event.HTTP_CONNECTOR_REQUEST){
+				if(message.getSourceAgentId() == null || monitoredServices.containsKey(message.getSourceAgentId())){
+					returnStatement = persistMessage(message, "MESSAGE");
+					if(!returnStatement)
+						return returnStatement;
+				}
+			}
+			
 			// If enabled for monitoring, add service message to database
 			else if(Math.abs(message.getEvent().getCode()) >= 7000 && (Math.abs(message.getEvent().getCode()) < 8000)){
-				//The service id is stored as destinationAgentId
+				//The service id is stored as destinationAgetId
 				if(monitoredServices.containsKey(message.getDestinationAgentId())){
 					if(message.getEvent() == Event.SERVICE_SHUTDOWN){
 						returnStatement = persistMessage(message, "REGISTERED_AT");
