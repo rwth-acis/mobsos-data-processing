@@ -22,7 +22,7 @@ import java.util.Map;
  * <br>
  * This service is responsible for processing incoming monitoring data.
  * It tests the data for correctness and stores them in a relational database.
- * The provision will be done by another service.
+ * The provision is done by the Monitoring Data Provision Service.
  * 
  * @author Peter de Lange
  * 
@@ -30,20 +30,29 @@ import java.util.Map;
 public class MonitoringDataProcessingService extends Service{
 	private static final String AGENT_PASS = "ProcessingAgentPass"; //The pass phrase for the receivingAgent
 	private MonitoringAgent receivingAgent; //This agent will be responsible for receiving all incoming message
-	private Map<Long, String> monitoredServices = new HashMap<Long, String>(); 
+	private Map<Long, String> monitoredServices = new HashMap<Long, String>();  //A list of services that are monitored
 	
-	private String databaseName = "to be done";
-	private int databaseTypeInt = -1; //See SQLDatabaseType for more information
+	/**
+	 * Configuration Parameters, values will be set by the configuration file.
+	 */
+	private String databaseName;
+	private int databaseTypeInt; //See SQLDatabaseType for more information
 	private	SQLDatabaseType databaseType;
-	private String databaseHost = "to be done";
-	private int databasePort = -1;
-	private String databaseUser = "to be done";
-	private String databasePassword = "to be done";
+	private String databaseHost;
+	private int databasePort;
+	private String databaseUser;
+	private String databasePassword;
 	
-	private SQLDatabase database;
+	private SQLDatabase database; //The database instance to write to.
 	
+	
+	/**
+	 * 
+	 * Constructor of the Service. Loads the database values from a property file and tries to connect to the database.
+	 * 
+	 */
 	public MonitoringDataProcessingService(){
-		setFieldValues(); //This sets the values of the property file
+		setFieldValues(); //This sets the values of the configuration file
 		this.databaseType = SQLDatabaseType.getSQLDatabaseType(databaseTypeInt);
 		this.database = new SQLDatabase(this.databaseType, this.databaseUser, this.databasePassword,
 				this.databaseName, this.databaseHost, this.databasePort);
@@ -64,6 +73,8 @@ public class MonitoringDataProcessingService extends Service{
 	 * 
 	 * @param messages an array of {@link i5.las2peer.logging.monitoring.MonitoringMessage}s
 	 * 
+	 * @return true, if message persistence did work
+	 * 
 	 */
 	public boolean getMessages(MonitoringMessage[] messages){
 		Agent requestingAgent = getActiveAgent();
@@ -79,7 +90,16 @@ public class MonitoringDataProcessingService extends Service{
 		return processMessages(messages);
 	}
 	
-	
+	/**
+	 * 
+	 * Checks the messages content and calls {@link #persistMessage(MonitoringMessage, String)) with
+	 * the corresponding values.
+	 * 
+	 * @param messages an array of {@link i5.las2peer.logging.monitoring.MonitoringMessage}s
+	 * 
+	 * @return true, if message persistence did work
+	 * 
+	 */
 	private boolean processMessages(MonitoringMessage[] messages) {
 		boolean returnStatement = true;
 		for(MonitoringMessage message : messages){
@@ -181,7 +201,18 @@ public class MonitoringDataProcessingService extends Service{
 		
 	}
 	
-	
+	/**
+	 * 
+	 * This method constructs SQL-statements by calling the
+	 * {@link DatabaseInsertStatement} helper class. It then calls the database for persistence.
+	 * 
+	 * @param message a {@link i5.las2peer.logging.monitoring.MonitoringMessage}
+	 * @param table the table to insert to. This parameter does determine what action will be performed
+	 * on the database (insert an agent, a message, a node..).
+	 * 
+	 * @return true, if message persistence did work
+	 * 
+	 */
 	private boolean persistMessage(MonitoringMessage message, String table) {
 		boolean returnStatement = false;
 		try {

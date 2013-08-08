@@ -7,12 +7,14 @@ import java.sql.Statement;
 
 
 /**
+ * 
  * SQLDatabase.java
  *<br>
  * Stores the database credentials and provides access to query execution.
  * The original code was taken from the QueryVisualizationService.
  * 
  * @author Peter de Lange
+ * 
  */
 public class SQLDatabase{
 	
@@ -28,6 +30,7 @@ public class SQLDatabase{
 	
 	
 	/**
+	 * 
 	 * Constructor for a database instance.
 	 * 
 	 * @param jdbcInfo
@@ -36,6 +39,7 @@ public class SQLDatabase{
 	 * @param database
 	 * @param host
 	 * @param port
+	 * 
 	 */
 	public SQLDatabase(SQLDatabaseType jdbcInfo, String username, String password, String database, String host, int port){		
 		this.jdbcInfo = jdbcInfo;
@@ -54,13 +58,13 @@ public class SQLDatabase{
 	 * @return true, if connected
 	 * 
 	 * @throws ClassNotFoundException if the driver was not found
-	 * @throws SQLException if the connection did not work
+	 * @throws SQLException if connecting did not work
 	 * 
 	 */
 	public boolean connect() throws Exception{
 		try {
 			Class.forName(jdbcInfo.getDriverName()).newInstance();
-			String JDBCCurl = jdbcInfo.getJDBCurl(this.host, this.database, this.port);
+			String JDBCCurl = jdbcInfo.getURLPrefix(this.host, this.database, this.port);
 			this.connection = DriverManager.getConnection(JDBCCurl, this.username, this.password);
 			
 			if(!this.connection.isClosed()){
@@ -81,9 +85,11 @@ public class SQLDatabase{
 	
 	
 	/**
+	 * 
 	 * Disconnects from the database.
 	 * 
 	 * @return true, if correctly disconnected
+	 * 
 	 */
 	public boolean disconnect(){
 		try{
@@ -103,9 +109,11 @@ public class SQLDatabase{
 	
 	
 	/**
+	 * 
 	 * Checks, if this database instance is currently connected.
 	 * 
 	 * @return true, if connected
+	 * 
 	 */
 	public boolean isConnected(){
 		try{
@@ -118,12 +126,15 @@ public class SQLDatabase{
 	
 	
 	/**
+	 * 
 	 * Executes a SQL statement to insert an entry into the database.
 	 * 
 	 * @param SQLStatment
+	 * 
+	 * @return true, if correctly inserted
+	 * 
 	 * @throws SQLException problems inserting
 	 * 
-	 * @returns true, if correctly inserted
 	 */
 	public boolean store(String SQLStatment) throws Exception{
 		// make sure one is connected to a database
