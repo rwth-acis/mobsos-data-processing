@@ -136,19 +136,15 @@ public class SQLDatabase{
 	 * @throws SQLException problems inserting
 	 * 
 	 */
-	public boolean store(String SQLStatment) throws Exception{
+	public boolean store(String SQLStatment) throws SQLException{
 		// make sure one is connected to a database
 		if(!isConnected())
 			return false;
 		
-		try{
-			Statement statement = connection.createStatement();
-			statement.executeUpdate(SQLStatment);
-			return true;
-		}
-		catch (SQLException e){
-			throw e;
-		}
+		Statement statement = connection.createStatement();
+		statement.executeUpdate(SQLStatment);
+		return true;
+		
 	}
 	
 	
