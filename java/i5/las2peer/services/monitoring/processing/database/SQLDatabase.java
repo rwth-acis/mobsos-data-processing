@@ -64,8 +64,8 @@ public class SQLDatabase{
 	public boolean connect() throws Exception{
 		try {
 			Class.forName(jdbcInfo.getDriverName()).newInstance();
-			String JDBCCurl = jdbcInfo.getURLPrefix(this.host, this.database, this.port);
-			this.connection = DriverManager.getConnection(JDBCCurl, this.username, this.password);
+			String urlPrefix = jdbcInfo.getURLPrefix(this.host, this.database, this.port);
+			this.connection = DriverManager.getConnection(urlPrefix, this.username, this.password);
 			
 			if(!this.connection.isClosed()){
 				this.isConnected = true;
@@ -76,7 +76,7 @@ public class SQLDatabase{
 			}
 		} 
 		catch (ClassNotFoundException e){
-			throw new Exception("JDBC-Driver for requested database type not found! Make sure the library is defined in the settings and is placed in the libary folder!", e);
+			throw new Exception("JDBC-Driver for requested database type not found! Make sure the library is defined in the settings and is placed in the library folder!", e);
 		}
 		catch (SQLException e){
 			throw e;
