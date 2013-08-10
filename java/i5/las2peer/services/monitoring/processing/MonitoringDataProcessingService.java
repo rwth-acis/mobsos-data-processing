@@ -18,8 +18,6 @@ import java.util.Map;
 
 /**
  * 
- * MonitoringDataProcessingService.java
- * <br>
  * This service is responsible for processing incoming monitoring data.
  * It tests the data for correctness and stores them in a relational database.
  * The provision is done by the Monitoring Data Provision Service.

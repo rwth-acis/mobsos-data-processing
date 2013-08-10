@@ -7,8 +7,6 @@ import java.sql.Timestamp;
 
 /**
  * 
- * DatabaseInsertStatement.java
- * <br>
  * Helper Class that provides (static) methods to formulate a SQL statement according to the given specifications.
  * The statements are formulated according to the database scheme that can be found in the "scripts" folder provided with this project.
  * @author Peter de Lange
