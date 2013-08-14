@@ -91,10 +91,6 @@ public class DatabaseInsertStatement {
 		String destinationAgentId = "";
 		String remarks = "";
 		returnStatement = "INSERT INTO MESSAGE (EVENT, TIME_STAMP";
-		if(monitoringMessage.getTimespan() != null){
-			returnStatement += " ,TIME_SPAN";
-			timespan = monitoringMessage.getTimespan().toString();
-		}
 		if(monitoringMessage.getSourceNode() != null){
 			returnStatement += ", SOURCE_NODE";
 			sourceNode = ", '" + monitoringMessage.getSourceNode().substring(0, 12) + "'";
