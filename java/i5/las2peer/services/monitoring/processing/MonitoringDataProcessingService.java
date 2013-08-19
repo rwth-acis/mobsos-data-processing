@@ -176,8 +176,8 @@ public class MonitoringDataProcessingService extends Service{
 			
 			// If enabled for monitoring, add service message to database
 			else if(Math.abs(message.getEvent().getCode()) >= 7000 && (Math.abs(message.getEvent().getCode()) < 8000)){
-				//The service id is stored as destinationAgetId
-				if(monitoredServices.containsKey(message.getDestinationAgentId())){
+				//The service id is stored as sourceAgentId
+				if(monitoredServices.containsKey(message.getSourceAgentId())){
 					if(message.getEvent() == Event.SERVICE_SHUTDOWN){
 						returnStatement = persistMessage(message, "REGISTERED_AT");
 						if(!returnStatement)

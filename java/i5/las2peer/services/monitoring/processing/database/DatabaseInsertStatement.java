@@ -83,8 +83,7 @@ public class DatabaseInsertStatement {
 		String returnStatement;
 		
 		String event =  "'" + monitoringMessage.getEvent().toString() + "'";
-		String timestamp = ", '" + new Timestamp(monitoringMessage.getTimestamp()).toString() + "'";
-		String timespan = "";
+		String timestamp = ", '" + monitoringMessage.getTimestamp() + "'";
 		String sourceNode = "";
 		String sourceAgentId = "";
 		String destinationNode = "";
@@ -113,7 +112,7 @@ public class DatabaseInsertStatement {
 			remarks = ", '" + monitoringMessage.getRemarks() + "'";
 		}
 		returnStatement += ") VALUES(";
-		returnStatement += event + timestamp + timespan + sourceNode + sourceAgentId + destinationNode + destinationAgentId + remarks;
+		returnStatement += event + timestamp + sourceNode + sourceAgentId + destinationNode + destinationAgentId + remarks;
 		returnStatement += ");";
 		return returnStatement;
 	}
