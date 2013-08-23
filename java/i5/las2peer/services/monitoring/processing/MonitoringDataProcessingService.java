@@ -40,6 +40,7 @@ public class MonitoringDataProcessingService extends Service{
 	private int databasePort;
 	private String databaseUser;
 	private String databasePassword;
+	private String DB2Schema; //Only needed if a DB2 database is used
 	
 	private SQLDatabase database; //The database instance to write to.
 	
@@ -224,7 +225,7 @@ public class MonitoringDataProcessingService extends Service{
 	private boolean persistMessage(MonitoringMessage message, String table) {
 		boolean returnStatement = false;
 		try {
-			String insertStatement = DatabaseInsertStatement.returnInsertStatement(message, database.getJdbcInfo(), table);
+			String insertStatement = DatabaseInsertStatement.returnInsertStatement(message, database.getJdbcInfo(), DB2Schema, table);
 			returnStatement = database.store(insertStatement);
 			
 		} catch (Exception e) {

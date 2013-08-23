@@ -9,6 +9,7 @@ import java.sql.Timestamp;
  * 
  * Helper Class that provides (static) methods to formulate a SQL statement according to the given specifications.
  * The statements are formulated according to the database scheme that can be found in the "scripts" folder provided with this project.
+ *
  * @author Peter de Lange
  *
  */
@@ -21,6 +22,7 @@ public class DatabaseInsertStatement {
 	 * 
 	 * @param monitoringMessage a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information to be stored
 	 * @param databaseType the database type the statement should be formulated for
+	 * @param DB2Schema the schema of the DB2 database (can be set to null if database is MySQL)
 	 * @param table the name of the table the query should be inserted to
 	 * 
 	 * @return a SQL statement
@@ -28,28 +30,28 @@ public class DatabaseInsertStatement {
 	 * @throws Exception if the given information was not correct or sufficient for the desired table entry
 	 * 
 	 */
-	public static String returnInsertStatement(MonitoringMessage monitoringMessage, SQLDatabaseType databaseType, String table) throws Exception{		
+	public static String returnInsertStatement(MonitoringMessage monitoringMessage, SQLDatabaseType databaseType, String DB2Schema, String table) throws Exception{		
 	
 		if(databaseType == SQLDatabaseType.MySQL){
 			
 			if(table.equals("MESSAGE")){
-				return returnMessageStatement(monitoringMessage, databaseType);
+				return returnMySQLMessageStatement(monitoringMessage);
 			}
 			
 			else if(table.equals("AGENT")){
-				return returnAgentStatement(monitoringMessage, databaseType);
+				return returnMySQLAgentStatement(monitoringMessage);
 			}
 			
 			else if(table.equals("SERVICE")){
-				return returnServiceStatement(monitoringMessage, databaseType);
+				return returnMySQLServiceStatement(monitoringMessage);
 			}
 			
 			else if(table.equals("NODE")){
-				return returnNodeStatement(monitoringMessage, databaseType);
+				return returnMySQLNodeStatement(monitoringMessage);
 			}
 			
 			else if(table.equals("REGISTERED_AT")){
-				return returnRegisteredAtStatement(monitoringMessage, databaseType);				
+				return returnMySQLRegisteredAtStatement(monitoringMessage);				
 			}
 			
 			else{
@@ -71,15 +73,14 @@ public class DatabaseInsertStatement {
 	
 	/**
 	 * 
-	 * Returns a SQL statement for the message table.
+	 * Returns a MySQL statement for the message table.
 	 * 
 	 * @param monitoringMessage a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information to be stored
-	 * @param databaseType the database type the statement should be formulated for
 	 * 
-	 * @return a SQL statement
+	 * @return a MySQL statement
 	 * 
 	 */
-	private static String returnMessageStatement(MonitoringMessage monitoringMessage, SQLDatabaseType databaseType){
+	private static String returnMySQLMessageStatement(MonitoringMessage monitoringMessage){
 		String returnStatement;
 		
 		String event =  "'" + monitoringMessage.getEvent().toString() + "'";
@@ -120,17 +121,16 @@ public class DatabaseInsertStatement {
 	
 	/**
 	 * 
-	 * Returns a SQL statement for the Agent table.
+	 * Returns a MySQL statement for the Agent table.
 	 * 
 	 * @param monitoringMessage a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information to be stored
-	 * @param databaseType the database type the statement should be formulated for
 	 * 
-	 * @return a SQL statement
+	 * @return a MySQL statement
 	 * 
 	 * @throws Exception if the given information was not correct or sufficient for the desired table entry
 	 * 
 	 */
-	private static String returnAgentStatement(MonitoringMessage monitoringMessage, SQLDatabaseType databaseType) throws Exception{
+	private static String returnMySQLAgentStatement(MonitoringMessage monitoringMessage) throws Exception{
 		String returnStatement;
 		
 		if(monitoringMessage.getSourceNode() == null || monitoringMessage.getSourceAgentId() == null || monitoringMessage.getRemarks() == null)
@@ -171,17 +171,16 @@ public class DatabaseInsertStatement {
 	
 	/**
 	 * 
-	 * Returns a SQL statement for the Service table.
+	 * Returns a MySQL statement for the Service table.
 	 * 
 	 * @param monitoringMessage a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information to be stored
-	 * @param databaseType the database type the statement should be formulated for
 	 * 
-	 * @return a SQL statement
+	 * @return a MySQL statement
 	 * 
 	 * @throws Exception if the given information was not correct or sufficient for the desired table entry
 	 * 
 	 */
-	private static String returnServiceStatement(MonitoringMessage monitoringMessage, SQLDatabaseType databaseType) throws Exception {
+	private static String returnMySQLServiceStatement(MonitoringMessage monitoringMessage) throws Exception {
 		String returnStatement;
 		
 		if(monitoringMessage.getSourceAgentId() == null || monitoringMessage.getRemarks() == null)
@@ -195,17 +194,16 @@ public class DatabaseInsertStatement {
 	
 	/**
 	 * 
-	 * Returns a SQL statement for the "Registered At" table.
+	 * Returns a MySQL statement for the "Registered At" table.
 	 * 
 	 * @param monitoringMessage a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information to be stored
-	 * @param databaseType the database type the statement should be formulated for
 	 * 
-	 * @return a SQL statement
+	 * @return a MySQL statement
 	 * 
 	 * @throws Exception if the given information was not correct or sufficient for the desired table entry
 	 * 
 	 */
-	private static String returnRegisteredAtStatement(MonitoringMessage monitoringMessage, SQLDatabaseType databaseType) throws Exception {
+	private static String returnMySQLRegisteredAtStatement(MonitoringMessage monitoringMessage) throws Exception {
 		String returnStatement;
 		if(monitoringMessage.getTimestamp() == null || monitoringMessage.getSourceNode() == null)
 			throw new Exception("Missing information for 'registered at' entity!");
@@ -241,14 +239,13 @@ public class DatabaseInsertStatement {
 	 * Returns a SQL statement for the Node table.
 	 * 
 	 * @param monitoringMessage a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information to be stored
-	 * @param databaseType the database type the statement should be formulated for
 	 * 
 	 * @return a SQL statement
 	 * 
 	 * @throws Exception if the given information was not correct or sufficient for the desired table entry
 	 * 
 	 */
-	private static String returnNodeStatement(MonitoringMessage monitoringMessage, SQLDatabaseType databaseType) throws Exception {
+	private static String returnMySQLNodeStatement(MonitoringMessage monitoringMessage) throws Exception {
 		String returnStatement;
 		if(monitoringMessage.getEvent() == Event.NODE_STATUS_CHANGE){
 			if(monitoringMessage.getSourceNode() == null)
