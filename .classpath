@@ -12,5 +12,5 @@
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/db2jcc_javax-0.jar"/>
 	<classpathentry kind="lib" path="lib/mysqlConnectorJava-5.1.16.jar"/>
-	<classpathentry kind="output" path="tmp/classes"/>
+	<classpathentry kind="output" path="output"/>
 </classpath>
