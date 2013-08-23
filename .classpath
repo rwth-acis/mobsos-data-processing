@@ -10,7 +10,8 @@
 	<classpathentry kind="lib" path="lib/junit-4.11.jar"/>
 	<classpathentry kind="lib" path="lib/las2peer.jar" sourcepath="/LAS2peer"/>
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
-	<classpathentry kind="lib" path="lib/db2jcc_javax-0.jar"/>
 	<classpathentry kind="lib" path="lib/mysqlConnectorJava-5.1.16.jar"/>
+	<classpathentry kind="lib" path="lib/db2jcc_license_cu-0.jar"/>
+	<classpathentry kind="lib" path="lib/db2jcc-0.jar"/>
 	<classpathentry kind="output" path="output"/>
 </classpath>
