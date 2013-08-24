@@ -392,8 +392,14 @@ public class DatabaseInsertStatement {
 		else{
 			throw new Exception("Agent entities will only be persisted if registered at a node!"); 
 		}
-		returnStatement = "INSERT INTO " + DB2Schema + ".AGENT(AGENT_ID, TYPE) VALUES(";
-		returnStatement += monitoringMessage.getSourceAgentId() + ", '" + agentType + "')";
+		
+		
+		returnStatement = "MERGE INTO " + DB2Schema + ".AGENT agent1 USING ";
+		returnStatement += "(VALUES(" + monitoringMessage.getSourceAgentId() + ", '" + agentType + "')) ";
+		returnStatement += "AS agent2(AGENT_ID,TYPE) ";
+		returnStatement += "ON agent1.AGENT_ID=agent2.AGENT_ID WHEN MATCHED THEN UPDATE SET agent1.TYPE = agent2.TYPE ";
+		returnStatement += "WHEN NOT MATCHED THEN INSERT (AGENT_ID, TYPE) ";
+		returnStatement += "VALUES(" + monitoringMessage.getSourceAgentId() + ", '" + agentType + "')";
 		return returnStatement;
 	}
 	
@@ -416,8 +422,12 @@ public class DatabaseInsertStatement {
 		if(monitoringMessage.getSourceAgentId() == null || monitoringMessage.getRemarks() == null)
 			throw new Exception("Missing information for persisting service entity!");
 		
-		returnStatement = "INSERT INTO " + DB2Schema + ".SERVICE(AGENT_ID, SERVICE_CLASS_NAME) VALUES(";
-		returnStatement += monitoringMessage.getSourceAgentId() + ", '" + monitoringMessage.getRemarks() +"')";
+		returnStatement = "MERGE INTO " + DB2Schema + ".SERVICE service1 USING ";
+		returnStatement += "(VALUES(" + monitoringMessage.getSourceAgentId() + ", '" + monitoringMessage.getRemarks() + "')) ";
+		returnStatement += "AS service2(AGENT_ID,SERVICE_CLASS_NAME) ";
+		returnStatement += "ON service1.AGENT_ID=service2.AGENT_ID WHEN MATCHED THEN UPDATE SET service1.SERVICE_CLASS_NAME = service2.SERVICE_CLASS_NAME ";
+		returnStatement += "WHEN NOT MATCHED THEN INSERT (AGENT_ID, SERVICE_CLASS_NAME) ";
+		returnStatement += "VALUES(" + monitoringMessage.getSourceAgentId() + ", '" + monitoringMessage.getRemarks() + "')";
 		return returnStatement;
 	}
 	
@@ -485,8 +495,13 @@ public class DatabaseInsertStatement {
 			String nodeId = monitoringMessage.getSourceNode().substring(0, 12);
 			int startingLocationPosition = monitoringMessage.getSourceNode().lastIndexOf("/") + 1;
 			String nodeLocation = monitoringMessage.getSourceNode().substring(startingLocationPosition);
-			returnStatement = "INSERT INTO " + DB2Schema + ".NODE(NODE_ID, NODE_LOCATION) VALUES(";
-			returnStatement += "'" + nodeId +"', '" + nodeLocation + "')";
+			//Duplicate can happen because of new node notices
+			returnStatement = "MERGE INTO " + DB2Schema + ".NODE node1 USING ";
+			returnStatement += "(VALUES('" + nodeId + "', '" + nodeLocation + "')) ";
+			returnStatement += "AS node2(NODE_ID,NODE_LOCATION) ";
+			returnStatement += "ON node1.NODE_ID=node2.NODE_ID WHEN MATCHED THEN UPDATE SET node1.NODE_LOCATION = node2.NODE_LOCATION ";
+			returnStatement += "WHEN NOT MATCHED THEN INSERT (NODE_ID, NODE_LOCATION) ";
+			returnStatement += "VALUES('" + nodeId + "', '" + nodeLocation + "')";
 			return returnStatement;
 		}
 		else if(monitoringMessage.getEvent() == Event.NEW_NODE_NOTICE){
@@ -497,9 +512,13 @@ public class DatabaseInsertStatement {
 			int nodeLocationEnd = monitoringMessage.getRemarks().indexOf("]");
 			String nodeId = monitoringMessage.getRemarks().substring(nodeIdStart, nodeIdStart+12);
 			String nodeLocation = monitoringMessage.getRemarks().substring(nodeLocationStart, nodeLocationEnd);
-			returnStatement = "INSERT INTO " + DB2Schema + ".NODE(NODE_ID, NODE_LOCATION) VALUES(";
 			//Duplicate can happen because of new node notices
-			returnStatement += "'" + nodeId +"', '" + nodeLocation + "')";
+			returnStatement = "MERGE INTO " + DB2Schema + ".NODE node1 USING ";
+			returnStatement += "(VALUES('" + nodeId + "', '" + nodeLocation + "')) ";
+			returnStatement += "AS node2(NODE_ID,NODE_LOCATION) ";
+			returnStatement += "ON node1.NODE_ID=node2.NODE_ID WHEN MATCHED THEN UPDATE SET node1.NODE_LOCATION = node2.NODE_LOCATION ";
+			returnStatement += "WHEN NOT MATCHED THEN INSERT (NODE_ID, NODE_LOCATION) ";
+			returnStatement += "VALUES('" + nodeId + "', '" + nodeLocation + "')";
 			return returnStatement;
 		}
 		else{
