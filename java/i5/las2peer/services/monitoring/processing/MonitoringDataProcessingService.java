@@ -109,8 +109,9 @@ public class MonitoringDataProcessingService extends Service{
 			}
 			
 			// Add node to database (running means we got an id representation) 
-			else if((message.getEvent() == Event.NODE_STATUS_CHANGE && message.getRemarks().equals("RUNNING"))
-					|| message.getEvent() == Event.NEW_NODE_NOTICE){
+			else if((message.getEvent() == Event.NODE_STATUS_CHANGE && message.getRemarks().equals("RUNNING"))){
+//DESIGN DECISION, logg only nodes that started the monitoring observer!
+//					|| message.getEvent() == Event.NEW_NODE_NOTICE){
 				returnStatement = persistMessage(message, "NODE");
 				if(!returnStatement)
 					return returnStatement;

@@ -279,19 +279,20 @@ public class DatabaseInsertStatement {
 			returnStatement += "'" + nodeId +"', '" + nodeLocation + "') ON DUPLICATE KEY UPDATE NODE_ID = NODE_ID;";
 			return returnStatement;
 		}
-		else if(monitoringMessage.getEvent() == Event.NEW_NODE_NOTICE){
-			if(monitoringMessage.getRemarks() == null)
-				throw new Exception("Missing information for persisting node entity!");
-			int nodeIdStart = monitoringMessage.getRemarks().indexOf("<");
-			int nodeLocationStart = monitoringMessage.getRemarks().lastIndexOf("/") + 1;
-			int nodeLocationEnd = monitoringMessage.getRemarks().indexOf("]");
-			String nodeId = monitoringMessage.getRemarks().substring(nodeIdStart, nodeIdStart+12);
-			String nodeLocation = monitoringMessage.getRemarks().substring(nodeLocationStart, nodeLocationEnd);
-			returnStatement = "INSERT INTO NODE(NODE_ID, NODE_LOCATION) VALUES(";
-			//Duplicate can happen because of new node notices
-			returnStatement += "'" + nodeId +"', '" + nodeLocation + "') ON DUPLICATE KEY UPDATE NODE_ID = NODE_ID;";
-			return returnStatement;
-		}
+//DESIGN DECISION, log only nodes that started the monitoring observer!
+//		else if(monitoringMessage.getEvent() == Event.NEW_NODE_NOTICE){
+//			if(monitoringMessage.getRemarks() == null)
+//				throw new Exception("Missing information for persisting node entity!");
+//			int nodeIdStart = monitoringMessage.getRemarks().indexOf("<");
+//			int nodeLocationStart = monitoringMessage.getRemarks().lastIndexOf("/") + 1;
+//			int nodeLocationEnd = monitoringMessage.getRemarks().indexOf("]");
+//			String nodeId = monitoringMessage.getRemarks().substring(nodeIdStart, nodeIdStart+12);
+//			String nodeLocation = monitoringMessage.getRemarks().substring(nodeLocationStart, nodeLocationEnd);
+//			returnStatement = "INSERT INTO NODE(NODE_ID, NODE_LOCATION) VALUES(";
+//			//Duplicate can happen because of new node notices
+//			returnStatement += "'" + nodeId +"', '" + nodeLocation + "') ON DUPLICATE KEY UPDATE NODE_ID = NODE_ID;";
+//			return returnStatement;
+//		}
 		else{
 			throw new Exception("Node persistence only at new node notice or node creation events!");
 		}
@@ -504,23 +505,24 @@ public class DatabaseInsertStatement {
 			returnStatement += "VALUES('" + nodeId + "', '" + nodeLocation + "')";
 			return returnStatement;
 		}
-		else if(monitoringMessage.getEvent() == Event.NEW_NODE_NOTICE){
-			if(monitoringMessage.getRemarks() == null)
-				throw new Exception("Missing information for persisting node entity!");
-			int nodeIdStart = monitoringMessage.getRemarks().indexOf("<");
-			int nodeLocationStart = monitoringMessage.getRemarks().lastIndexOf("/") + 1;
-			int nodeLocationEnd = monitoringMessage.getRemarks().indexOf("]");
-			String nodeId = monitoringMessage.getRemarks().substring(nodeIdStart, nodeIdStart+12);
-			String nodeLocation = monitoringMessage.getRemarks().substring(nodeLocationStart, nodeLocationEnd);
-			//Duplicate can happen because of new node notices
-			returnStatement = "MERGE INTO " + DB2Schema + ".NODE node1 USING ";
-			returnStatement += "(VALUES('" + nodeId + "', '" + nodeLocation + "')) ";
-			returnStatement += "AS node2(NODE_ID,NODE_LOCATION) ";
-			returnStatement += "ON node1.NODE_ID=node2.NODE_ID WHEN MATCHED THEN UPDATE SET node1.NODE_LOCATION = node2.NODE_LOCATION ";
-			returnStatement += "WHEN NOT MATCHED THEN INSERT (NODE_ID, NODE_LOCATION) ";
-			returnStatement += "VALUES('" + nodeId + "', '" + nodeLocation + "')";
-			return returnStatement;
-		}
+//DESIGN DECISION, log only nodes that started the monitoring observer!
+//		else if(monitoringMessage.getEvent() == Event.NEW_NODE_NOTICE){
+//			if(monitoringMessage.getRemarks() == null)
+//				throw new Exception("Missing information for persisting node entity!");
+//			int nodeIdStart = monitoringMessage.getRemarks().indexOf("<");
+//			int nodeLocationStart = monitoringMessage.getRemarks().lastIndexOf("/") + 1;
+//			int nodeLocationEnd = monitoringMessage.getRemarks().indexOf("]");
+//			String nodeId = monitoringMessage.getRemarks().substring(nodeIdStart, nodeIdStart+12);
+//			String nodeLocation = monitoringMessage.getRemarks().substring(nodeLocationStart, nodeLocationEnd);
+//			//Duplicate can happen because of new node notices
+//			returnStatement = "MERGE INTO " + DB2Schema + ".NODE node1 USING ";
+//			returnStatement += "(VALUES('" + nodeId + "', '" + nodeLocation + "')) ";
+//			returnStatement += "AS node2(NODE_ID,NODE_LOCATION) ";
+//			returnStatement += "ON node1.NODE_ID=node2.NODE_ID WHEN MATCHED THEN UPDATE SET node1.NODE_LOCATION = node2.NODE_LOCATION ";
+//			returnStatement += "WHEN NOT MATCHED THEN INSERT (NODE_ID, NODE_LOCATION) ";
+//			returnStatement += "VALUES('" + nodeId + "', '" + nodeLocation + "')";
+//			return returnStatement;
+//		}
 		else{
 			throw new Exception("Node persistence only at new node notice or node creation events!");
 		}
