@@ -101,8 +101,8 @@ public class MonitoringDataProcessingService extends Service{
 	 */
 	private boolean processMessages(MonitoringMessage[] messages) {
 		boolean returnStatement = true;
+		
 		for(MonitoringMessage message : messages){
-			
 			// Happens when a node has sent its last messages
 			if(message == null){
 				return returnStatement;
@@ -110,8 +110,6 @@ public class MonitoringDataProcessingService extends Service{
 			
 			// Add node to database (running means we got an id representation) 
 			else if((message.getEvent() == Event.NODE_STATUS_CHANGE && message.getRemarks().equals("RUNNING"))){
-//DESIGN DECISION, logg only nodes that started the monitoring observer!
-//					|| message.getEvent() == Event.NEW_NODE_NOTICE){
 				returnStatement = persistMessage(message, "NODE");
 				if(!returnStatement)
 					return returnStatement;
@@ -228,7 +226,6 @@ public class MonitoringDataProcessingService extends Service{
 		try {
 			String insertStatement = DatabaseInsertStatement.returnInsertStatement(message, database.getJdbcInfo(), DB2Schema, table);
 			returnStatement = database.store(insertStatement);
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
