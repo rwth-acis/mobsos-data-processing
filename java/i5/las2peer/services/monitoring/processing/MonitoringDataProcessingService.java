@@ -78,7 +78,7 @@ public class MonitoringDataProcessingService extends Service{
 	public boolean getMessages(MonitoringMessage[] messages){
 		Agent requestingAgent = getActiveAgent();
 		if(receivingAgent == null){
-			System.out.println("Monitoring: Agent not registered yet, this invokation must be false!");
+			System.out.println("Monitoring: Agent not registered yet, this invocation must be false!");
 			return false;
 		}
 		if(requestingAgent.getId() != receivingAgent.getId()){
@@ -88,6 +88,7 @@ public class MonitoringDataProcessingService extends Service{
 		System.out.println("Monitoring: Got a monitoring message!");
 		return processMessages(messages);
 	}
+	
 	
 	/**
 	 * 
