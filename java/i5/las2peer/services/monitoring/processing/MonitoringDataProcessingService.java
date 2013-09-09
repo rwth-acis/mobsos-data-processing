@@ -82,7 +82,7 @@ public class MonitoringDataProcessingService extends Service{
 			return false;
 		}
 		if(requestingAgent.getId() != receivingAgent.getId()){
-			System.out.println("Monitoring: I only take messages from my own Agent!");
+			System.out.println("Monitoring: I only take messages from my own agent!");
 			return false;
 		}
 		System.out.println("Monitoring: Got a monitoring message!");
