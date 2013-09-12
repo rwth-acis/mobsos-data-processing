@@ -89,7 +89,7 @@
 			</manifest>
 		</jar>
 		<!-- Copy to lib and service folder to enable working with L2PNodeLauncher AND ServiceStarter !-->
-		<jar jarfile="${lib}/i5.las2peer.services.monitoring.processsing-${MonitoringDataProcessingService.version}.jar">
+		<jar jarfile="${lib}/i5.las2peer.services.monitoring.processing-${MonitoringDataProcessingService.version}.jar">
 			<fileset dir="${tmp.classes}" includes="i5/las2peer/services/monitoring/processing/**" />
 			<manifest>
 				<attribute name="Library-Version" value="${MonitoringDataProcessingService.version}" />

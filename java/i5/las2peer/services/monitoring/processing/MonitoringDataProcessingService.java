@@ -67,6 +67,23 @@ public class MonitoringDataProcessingService extends Service{
 	
 	/**
 	 * 
+	 * Reconnect to the database (can be called in case of an error).
+	 * 
+	 */
+	public void reconnect(){
+		this.database.disconnect();
+		try {
+			this.database.connect();
+			System.out.println("Monitoring: Database reconnected!");
+		} catch (Exception e) {
+			System.out.println("Monitoring: Could not connect to database!");
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/**
+	 * 
 	 * Will be called by the receiving {@link i5.las2peer.security.MonitoringAgent} of this service,
 	 * if it receives a message from a monitored node.
 	 * 
