@@ -115,7 +115,7 @@
 				version="true"
 				use="true"
 				source="1.7"
-				windowtitle="Monitoring Data Processsing Service Documentation"
+				windowtitle="Monitoring Data Processing Service Documentation"
 				failonerror="yes"
 				encoding="utf8"
 				classpath="${lib.cp}:${tmp.classes}"
