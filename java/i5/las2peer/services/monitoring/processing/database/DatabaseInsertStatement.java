@@ -176,7 +176,7 @@ public class DatabaseInsertStatement {
 				agentType = "MONITORING";
 			}
 			else if(monitoringMessage.getRemarks().equals("ServiceInfoAgent")){
-				agentType = "MONITORING";
+				agentType = "SERVICE_INFO";
 			}
 			else if(monitoringMessage.getRemarks().equals("Mediator")){
 			//Thats right, we treat mediators as agents (as from a monitoring point of view, this is the same)
