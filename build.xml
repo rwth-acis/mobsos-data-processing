@@ -121,6 +121,7 @@
 			<manifest>
 				<attribute name="Library-Version" value="${MonitoringDataProcessingService.version}" />
 				<attribute name="Library-SymbolicName" value="i5.las2peer.services.monitoring.processing" />
+				<attribute name="Import-Library" value='db2jcc;version="0",db2jcc_license_cu;version="0",db2jcc;version="0",mysqlConnectorJava;version="5.1.16"' />
 			</manifest>
 		</jar>
 		<!-- Copy to lib folder to enable working with L2PNodeLauncher !-->
@@ -129,6 +130,7 @@
 			<manifest>
 				<attribute name="Library-Version" value="${MonitoringDataProcessingService.version}" />
 				<attribute name="Library-SymbolicName" value="i5.las2peer.services.monitoring.processing" />
+				<attribute name="Import-Library" value='db2jcc;version="0",db2jcc_license_cu;version="0",db2jcc;version="0",mysqlConnectorJava;version="5.1.16"' />
 			</manifest>
 		</jar>
 	</target>
