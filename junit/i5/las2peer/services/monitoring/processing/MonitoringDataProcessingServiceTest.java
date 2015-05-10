@@ -17,14 +17,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class MonitoringDataProcessingServiceTest {
+
 	private static final String HTTP_ADDRESS = "localhost";
-	private static final int HTTP_PORT = HttpConnector.DEFAULT_HTTP_CONNECTOR_PORT;
+	private static final int HTTP_PORT = 8080;
 
 	private LocalNode node;
 	private HttpConnector connector;
 	private ByteArrayOutputStream logStream;
 	private UserAgent adam = null;
-	
+
 	private static final String adamsPass = "adamspass";
 	private static final String testServiceClass = "i5.las2peer.services.monitoring.processing.MonitoringDataProcessingService";
 
@@ -32,9 +33,9 @@ public class MonitoringDataProcessingServiceTest {
 	public void startServer() throws Exception {
 		// start Node
 		node = LocalNode.newNode();
-		
+
 		adam = MockAgentFactory.getAdam();
-		
+
 		node.storeAgent(adam);
 
 		node.launch();
@@ -48,6 +49,7 @@ public class MonitoringDataProcessingServiceTest {
 		// start connector
 		logStream = new ByteArrayOutputStream();
 		connector = new HttpConnector();
+		connector.setPort(HTTP_PORT);
 		connector.setSocketTimeout(10000);
 		connector.setLogStream(new PrintStream(logStream));
 		connector.start(node);
@@ -68,33 +70,32 @@ public class MonitoringDataProcessingServiceTest {
 
 		System.out.println(logStream.toString());
 	}
-	
+
 	@Test
 	public void testDefaultStartup() {
 		Client c = new Client(HTTP_ADDRESS, HTTP_PORT, adam.getLoginName(), adamsPass);
-		
+
 		try {
-			//Login as Adam
+			// Login as Adam
 			c.connect();
-			
+
 			Object result = c.invoke(testServiceClass, "getReceivingAgentId", "Just a Test");
 			assertTrue(result instanceof Long);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Exception: " + e);
 		}
-		
-		
+
 		try {
-		
-		//and logout
-		c.disconnect();
-		
+
+			// and logout
+			c.disconnect();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Exception: " + e);
 		}
 	}
-	
+
 }
