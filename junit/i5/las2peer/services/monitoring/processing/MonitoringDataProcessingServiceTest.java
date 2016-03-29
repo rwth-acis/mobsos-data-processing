@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 import i5.las2peer.httpConnector.HttpConnector;
 import i5.las2peer.httpConnector.client.Client;
 import i5.las2peer.p2p.LocalNode;
+import i5.las2peer.p2p.ServiceNameVersion;
 import i5.las2peer.security.ServiceAgent;
 import i5.las2peer.security.UserAgent;
 import i5.las2peer.testing.MockAgentFactory;
@@ -27,7 +28,7 @@ public class MonitoringDataProcessingServiceTest {
 	private UserAgent adam = null;
 
 	private static final String adamsPass = "adamspass";
-	private static final String testServiceClass = "i5.las2peer.services.monitoring.processing.MonitoringDataProcessingService";
+	private static final ServiceNameVersion testServiceClass = new ServiceNameVersion(MonitoringDataProcessingService.class.getCanonicalName(),"0.1");
 
 	@Before
 	public void startServer() throws Exception {
@@ -35,12 +36,12 @@ public class MonitoringDataProcessingServiceTest {
 		node = LocalNode.newNode();
 
 		adam = MockAgentFactory.getAdam();
-
+		adam.unlockPrivateKey(adamsPass);
 		node.storeAgent(adam);
-
+		
 		node.launch();
 
-		ServiceAgent testService = ServiceAgent.generateNewAgent(
+		ServiceAgent testService = ServiceAgent.createServiceAgent(
 				testServiceClass, "a pass");
 		testService.unlockPrivateKey("a pass");
 
@@ -79,7 +80,7 @@ public class MonitoringDataProcessingServiceTest {
 			// Login as Adam
 			c.connect();
 
-			Object result = c.invoke(testServiceClass, "getReceivingAgentId", "Just a Test");
+			Object result = c.invoke(testServiceClass.getName(), "getReceivingAgentId", "Just a Test");
 			assertTrue(result instanceof Long);
 
 		} catch (Exception e) {

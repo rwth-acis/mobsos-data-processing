@@ -87,7 +87,7 @@ public class MonitoringDataProcessingService extends Service {
 	 * 
 	 */
 	public boolean getMessages(MonitoringMessage[] messages) {
-		Agent requestingAgent = getActiveAgent();
+		Agent requestingAgent = getContext().getMainAgent();
 		if (receivingAgent == null) {
 			System.out.println("Monitoring: Agent not registered yet, this invocation must be false!");
 			return false;
@@ -261,8 +261,8 @@ public class MonitoringDataProcessingService extends Service {
 			try {
 				receivingAgent = MonitoringAgent.createMonitoringAgent(AGENT_PASS);
 				receivingAgent.unlockPrivateKey(AGENT_PASS);
-				getActiveNode().storeAgent(receivingAgent);
-				getActiveNode().registerReceiver(receivingAgent);
+				getContext().getLocalNode().storeAgent(receivingAgent);
+				getContext().getLocalNode().registerReceiver(receivingAgent);
 			} catch (CryptoException | AgentException | L2pSecurityException e) {
 				e.printStackTrace();
 			}
