@@ -66,10 +66,11 @@ public class MonitoringDataProcessingService extends Service {
 	 * 
 	 */
 	public void reconnect() {
-		this.database.disconnect();
 		try {
-			this.database.connect();
-			System.out.println("Monitoring: Database reconnected!");
+			if(!database.isConnected()){
+				this.database.connect();
+				System.out.println("Monitoring: Database reconnected!");
+			}
 		} catch (Exception e) {
 			System.out.println("Monitoring: Could not connect to database!");
 			e.printStackTrace();
@@ -238,6 +239,7 @@ public class MonitoringDataProcessingService extends Service {
 		try {
 			String insertStatement = DatabaseInsertStatement.returnInsertStatement(message, database.getJdbcInfo(),
 					DB2Schema, table);
+			reconnect();
 			returnStatement = database.store(insertStatement);
 		} catch (Exception e) {
 			e.printStackTrace();

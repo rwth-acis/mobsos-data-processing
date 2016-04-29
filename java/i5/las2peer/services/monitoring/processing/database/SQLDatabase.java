@@ -136,8 +136,10 @@ public class SQLDatabase{
 	 */
 	public boolean store(String SQLStatment) throws SQLException{
 		// make sure one is connected to a database
-		if(!isConnected())
+		if(!isConnected()){
+			System.err.println("No database connection.");
 			return false;
+		}
 		
 		Statement statement = connection.createStatement();
 		statement.executeUpdate(SQLStatment);
