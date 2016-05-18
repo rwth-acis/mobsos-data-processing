@@ -163,7 +163,7 @@ public class MonitoringDataProcessingService extends Service {
 			}
 
 			// Add agent to database
-			else if (message.getEvent() == Event.AGENT_REGISTERED && !message.getRemarks().equals("ServiceAgent")) {
+			else if (message.getEvent() == Event.AGENT_REGISTERED && !message.getRemarks().equals("ServiceAgent") && !message.getRemarks().equals("ServiceInfoAgent")) {
 				returnStatement = persistMessage(message, "AGENT");
 				if (!returnStatement)
 					return returnStatement;
