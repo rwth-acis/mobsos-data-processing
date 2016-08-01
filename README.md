@@ -1,4 +1,4 @@
-LAS2peer-Monitoring-Data-Processing-Service
+mobsos-data-processing
 ===========================================
 
-This service is part of the LAS2peer monitoring concept and processes incoming monitoring data.
+This service is part of the MobSOS monitoring concept and processes incoming monitoring data.
