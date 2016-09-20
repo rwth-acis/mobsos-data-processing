@@ -1,4 +1,4 @@
-package i5.las2peer.services.monitoring.processing;
+package i5.las2peer.services.mobsos.dataProcessing;
 
 import i5.las2peer.api.Service;
 import i5.las2peer.logging.NodeObserver.Event;
@@ -7,9 +7,9 @@ import i5.las2peer.security.Agent;
 import i5.las2peer.security.AgentException;
 import i5.las2peer.security.L2pSecurityException;
 import i5.las2peer.security.MonitoringAgent;
-import i5.las2peer.services.monitoring.processing.database.DatabaseInsertStatement;
-import i5.las2peer.services.monitoring.processing.database.SQLDatabase;
-import i5.las2peer.services.monitoring.processing.database.SQLDatabaseType;
+import i5.las2peer.services.mobsos.dataProcessing.database.DatabaseInsertStatement;
+import i5.las2peer.services.mobsos.dataProcessing.database.SQLDatabase;
+import i5.las2peer.services.mobsos.dataProcessing.database.SQLDatabaseType;
 import i5.las2peer.tools.CryptoException;
 
 import java.util.HashMap;

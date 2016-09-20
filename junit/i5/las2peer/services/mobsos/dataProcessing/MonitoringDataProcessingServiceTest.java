@@ -1,4 +1,4 @@
-package i5.las2peer.services.monitoring.processing;
+package i5.las2peer.services.mobsos.dataProcessing;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -8,6 +8,7 @@ import i5.las2peer.p2p.LocalNode;
 import i5.las2peer.p2p.ServiceNameVersion;
 import i5.las2peer.security.ServiceAgent;
 import i5.las2peer.security.UserAgent;
+import i5.las2peer.services.mobsos.dataProcessing.MonitoringDataProcessingService;
 import i5.las2peer.testing.MockAgentFactory;
 
 import java.io.ByteArrayOutputStream;

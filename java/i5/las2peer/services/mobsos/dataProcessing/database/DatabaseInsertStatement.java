@@ -1,8 +1,8 @@
-package i5.las2peer.services.monitoring.processing.database;
+package i5.las2peer.services.mobsos.dataProcessing.database;
 
 import i5.las2peer.logging.NodeObserver.Event;
 import i5.las2peer.logging.monitoring.MonitoringMessage;
-import i5.las2peer.services.monitoring.processing.MonitoringMessageWithEncryptedAgents;
+import i5.las2peer.services.mobsos.dataProcessing.MonitoringMessageWithEncryptedAgents;
 
 import java.sql.Timestamp;
 
