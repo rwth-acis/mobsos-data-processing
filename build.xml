@@ -101,28 +101,28 @@
 
 	<target name="MonitoringDataProcessingService_jar" depends="compile_main">
 		<property name="MonitoringDataProcessingService.version" value="0.1" />
-		<jar jarfile="${export.jars}/i5.las2peer.services.monitoring.processing-${MonitoringDataProcessingService.version}.jar">
-			<fileset dir="${tmp.classes}" includes="i5/las2peer/services/monitoring/processing/**" />
+		<jar jarfile="${export.jars}/i5.las2peer.services.mobsos.dataProcessing-${MonitoringDataProcessingService.version}.jar">
+			<fileset dir="${tmp.classes}" includes="i5/las2peer/services/mobsos/dataProcessing/**" />
 			<manifest>
 				<attribute name="Library-Version" value="${MonitoringDataProcessingService.version}" />
-				<attribute name="Library-SymbolicName" value="i5.las2peer.services.monitoring.processing" />
+				<attribute name="Library-SymbolicName" value="i5.las2peer.services.mobsos.dataProcessing" />
 				<attribute name="Import-Library" value='db2jcc;version="0",db2jcc_license_cu;version="0",db2jcc;version="0",mysqlConnectorJava;version="5.1.16"' />
 			</manifest>
 		</jar>
         <!-- Add the same Jar to the Service Directory !-->
-        <jar jarfile="${service}/i5.las2peer.services.monitoring.processing-${MonitoringDataProcessingService.version}.jar">
+        <jar jarfile="${service}/i5.las2peer.services.mobsos.dataProcessing-${MonitoringDataProcessingService.version}.jar">
             <fileset dir="${tmp.classes}" includes="${service.path}/**" />
             <manifest>
                 <attribute name="Library-Version" value="${MonitoringDataProcessingService.version}" />
-                <attribute name="Library-SymbolicName" value="i5.las2peer.services.monitoring.processing" />
+                <attribute name="Library-SymbolicName" value="i5.las2peer.services.mobsos.dataProcessing" />
             </manifest>
         </jar>
 		<!-- Copy to lib folder to enable working with L2PNodeLauncher !-->
-		<jar jarfile="${lib}/i5.las2peer.services.monitoring.processing-${MonitoringDataProcessingService.version}.jar">
-			<fileset dir="${tmp.classes}" includes="i5/las2peer/services/monitoring/processing/**" />
+		<jar jarfile="${lib}/i5.las2peer.services.mobsos.dataProcessing-${MonitoringDataProcessingService.version}.jar">
+			<fileset dir="${tmp.classes}" includes="i5/las2peer/services/mobsos/dataProcessing/**" />
 			<manifest>
 				<attribute name="Library-Version" value="${MonitoringDataProcessingService.version}" />
-				<attribute name="Library-SymbolicName" value="i5.las2peer.services.monitoring.processing" />
+				<attribute name="Library-SymbolicName" value="i5.las2peer.services.mobsos.dataProcessing" />
 				<attribute name="Import-Library" value='db2jcc;version="0",db2jcc_license_cu;version="0",db2jcc;version="0",mysqlConnectorJava;version="5.1.16"' />
 			</manifest>
 		</jar>

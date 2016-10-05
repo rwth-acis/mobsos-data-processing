@@ -1,5 +1,8 @@
 package i5.las2peer.services.mobsos.dataProcessing;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import i5.las2peer.api.Service;
 import i5.las2peer.logging.NodeObserver.Event;
 import i5.las2peer.logging.monitoring.MonitoringMessage;
@@ -12,14 +15,10 @@ import i5.las2peer.services.mobsos.dataProcessing.database.SQLDatabase;
 import i5.las2peer.services.mobsos.dataProcessing.database.SQLDatabaseType;
 import i5.las2peer.tools.CryptoException;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * 
- * This service is responsible for processing incoming monitoring data.
- * It tests the data for correctness and stores them in a relational database.
- * The provision is done by the Monitoring Data Provision Service.
+ * This service is responsible for processing incoming monitoring data. It tests the data for correctness and stores
+ * them in a relational database. The provision is done by the Monitoring Data Provision Service.
  * 
  */
 public class MonitoringDataProcessingService extends Service {
@@ -49,8 +48,9 @@ public class MonitoringDataProcessingService extends Service {
 	public MonitoringDataProcessingService() {
 		setFieldValues(); // This sets the values of the configuration file
 		this.databaseType = SQLDatabaseType.getSQLDatabaseType(databaseTypeInt);
-		this.database = new SQLDatabase(this.databaseType, this.databaseUser, this.databasePassword,
-				this.databaseName, this.databaseHost, this.databasePort);
+		System.out.println(databaseTypeInt);
+		this.database = new SQLDatabase(this.databaseType, this.databaseUser, this.databasePassword, this.databaseName,
+				this.databaseHost, this.databasePort);
 		try {
 			this.database.connect();
 			System.out.println("Monitoring: Database connected!");
@@ -67,7 +67,7 @@ public class MonitoringDataProcessingService extends Service {
 	 */
 	public void reconnect() {
 		try {
-			if(!database.isConnected()){
+			if (!database.isConnected()) {
 				this.database.connect();
 				System.out.println("Monitoring: Database reconnected!");
 			}
@@ -79,8 +79,8 @@ public class MonitoringDataProcessingService extends Service {
 
 	/**
 	 * 
-	 * Will be called by the receiving {@link i5.las2peer.security.MonitoringAgent} of this service,
-	 * if it receives a message from a monitored node.
+	 * Will be called by the receiving {@link i5.las2peer.security.MonitoringAgent} of this service, if it receives a
+	 * message from a monitored node.
 	 * 
 	 * @param messages an array of {@link i5.las2peer.logging.monitoring.MonitoringMessage}s
 	 * 
@@ -103,8 +103,8 @@ public class MonitoringDataProcessingService extends Service {
 
 	/**
 	 * 
-	 * Checks the messages content and calls {@link #persistMessage(MonitoringMessage, String)) with
-	 * the corresponding values.
+	 * Checks the messages content and calls {@link #persistMessage(MonitoringMessage, String)) with the corresponding
+	 * values.
 	 * 
 	 * @param messages an array of {@link i5.las2peer.logging.monitoring.MonitoringMessage}s
 	 * 
@@ -163,7 +163,8 @@ public class MonitoringDataProcessingService extends Service {
 			}
 
 			// Add agent to database
-			else if (message.getEvent() == Event.AGENT_REGISTERED && !message.getRemarks().equals("ServiceAgent") && !message.getRemarks().equals("ServiceInfoAgent")) {
+			else if (message.getEvent() == Event.AGENT_REGISTERED && !message.getRemarks().equals("ServiceAgent")
+					&& !message.getRemarks().equals("ServiceInfoAgent")) {
 				returnStatement = persistMessage(message, "AGENT");
 				if (!returnStatement)
 					return returnStatement;
@@ -188,7 +189,8 @@ public class MonitoringDataProcessingService extends Service {
 			}
 
 			// If enabled for monitoring, add service message to database
-			else if (Math.abs(message.getEvent().getCode()) >= 7000 && (Math.abs(message.getEvent().getCode()) < 8000)) {
+			else if (Math.abs(message.getEvent().getCode()) >= 7000
+					&& (Math.abs(message.getEvent().getCode()) < 8000)) {
 				// The service id is stored as sourceAgentId
 				if (monitoredServices.containsKey(message.getSourceAgentId())) {
 					if (message.getEvent() == Event.SERVICE_SHUTDOWN) {
@@ -200,8 +202,7 @@ public class MonitoringDataProcessingService extends Service {
 					if (!returnStatement)
 						return returnStatement;
 				}
-			}
-			else if (message.getEvent() == Event.AGENT_REMOVED) {
+			} else if (message.getEvent() == Event.AGENT_REMOVED) {
 				returnStatement = persistMessage(message, "REGISTERED_AT");
 				if (!returnStatement)
 					return returnStatement;
@@ -224,12 +225,12 @@ public class MonitoringDataProcessingService extends Service {
 
 	/**
 	 * 
-	 * This method constructs SQL-statements by calling the
-	 * {@link DatabaseInsertStatement} helper class. It then calls the database for persistence.
+	 * This method constructs SQL-statements by calling the {@link DatabaseInsertStatement} helper class. It then calls
+	 * the database for persistence.
 	 * 
 	 * @param message a {@link i5.las2peer.logging.monitoring.MonitoringMessage}
-	 * @param table the table to insert to. This parameter does determine what action will be performed
-	 * on the database (insert an agent, a message, a node..).
+	 * @param table the table to insert to. This parameter does determine what action will be performed on the database
+	 *            (insert an agent, a message, a node..).
 	 * 
 	 * @return true, if message persistence did work
 	 * 
@@ -249,8 +250,8 @@ public class MonitoringDataProcessingService extends Service {
 
 	/**
 	 * 
-	 * Returns the id of this monitoring agent (that will be responsible for message receiving).
-	 * Creates one if not existent.
+	 * Returns the id of this monitoring agent (that will be responsible for message receiving). Creates one if not
+	 * existent.
 	 * 
 	 * @param greetings will be printed in the console and is only used to control registering
 	 * 
