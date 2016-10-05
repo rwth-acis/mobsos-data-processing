@@ -1,35 +1,41 @@
-<project name="MonitoringDataProcessingService" default="MonitoringDataProcessingService_jar" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="MonitoringDataProcessingService" default="get_deps" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
 	<presetdef name="javac">
 		<javac includeantruntime="false" />
 	</presetdef>
+	
+	<property file="etc/ant_configuration/user.properties"/>
+	<property file="etc/ant_configuration/service.properties"/>
 
-	<property name="src.main" location="java" />
-	<property name="src.junit" location="junit" />
-
-	<property name="tmp" location="tmp" />
-	<property name="log" location="log" />
-	<property name="service" location="service" />
-
-	<property name="tmp.classes" location="${tmp}/classes" />
-	<property name="tmp.junit" location="${tmp}/test" />
-
-	<property name="junit.report" location="${tmp}/test_reports" />
-
-	<property name="export" location="export" />
-	<property name="export.doc" location="${export}/doc" />
-	<property name="export.jars" location="${export}/jars" />
+	<property name="src.main" location="java/" />
+    <property name="src.junit" location="junit/" />
+    
+    <property name="tmp" location="tmp" />
+    <property name="log" location="log" />
+    <property name="service" location="service" />
+    
+    <property name="tmp.classes" location="${tmp}/classes" />
+    <property name="tmp.junit" location="${tmp}/test" />
+    
+    <property name="export" location="export" />
+    <property name="export.doc" location="${export}/doc" />
+    <property name="export.jars" location="${export}/jars" />
+    <property name="junit.report" location="${export}/test_reports" />
 
 	<property name="lib" location="lib" />
 
 	<path id="libraries">
-		<fileset dir="${lib}">
-			<include name="**/*.jar" />
-			<exclude name="junit-*.jar" />
-		</fileset>
-	</path>
-
-	<property name="lib.junit" location="${lib}/junit-4.11.jar" />
+	        <fileset dir="${lib}">
+	            <include name="**/*.jar"/>
+	            <exclude name="junit-*.jar"/>
+	        </fileset>
+	    	<fileset dir="${service}">
+	    	    <include name="**/*.jar"/>
+	    	    <exclude name="i5.las2peer.services.*.jar"/>
+	    	</fileset>
+	    </path>
+	    
+	    <property name="lib.junit" location="${lib}/junit-4.12.jar" />
 
 	<!-- Ivy Installation (Tool to fetch Libraries) -->
 	<property name="ivy.install.version" value="2.3.0" />
@@ -58,25 +64,32 @@
 		<ivy:retrieve type="jar" />
 	</target>
 
-	<target name="init_general">
-		<tstamp />
-		<mkdir dir="${tmp}" />
-		<mkdir dir="${log}" />
-		<mkdir dir="${export}" />
-	</target>
-
-	<target name="init_compile" depends="init_general, get_deps">
-		<mkdir dir="${tmp.classes}" />
-		<mkdir dir="${tmp.junit}" />
-	</target>
-
-	<target name="init_jars" depends="init_general">
-		<mkdir dir="${export.jars}" />
-	</target>
-
-	<target name="init_doc" depends="init_general">
-		<mkdir dir="${export.doc}" />
-	</target>
+	<!-- Initialization (Folder Creation)-->
+		<target name="init_deps">
+	        <mkdir dir="${lib}" />
+	        <mkdir dir="${service}" />
+	    </target>
+		
+	    <target name="init_general">
+	        <tstamp/>
+	        <mkdir dir="${tmp}" />
+	        <mkdir dir="${export}" />
+	        <mkdir dir="${startup}" />
+	        <mkdir dir="${log}" />
+	    </target>
+	    
+	    <target name="init_compile" depends="init_general, get_deps">
+	        <mkdir dir="${tmp.classes}" />
+	        <mkdir dir="${tmp.junit}" />
+	    </target>
+	    
+	    <target name="init_jars" depends="init_general">
+	        <mkdir dir="${export.jars}" />
+	    </target>
+	    
+	    <target name="init_doc" depends="init_general">
+	        <mkdir dir="${export.doc}" />
+	    </target>
 
 	<!-- compilation -->
 	<target name="compile_main" depends="init_compile">
@@ -99,44 +112,45 @@
 
 	<target name="compile_all" depends="compile_main, compile_junit" />
 
-	<target name="MonitoringDataProcessingService_jar" depends="compile_main">
-		<property name="MonitoringDataProcessingService.version" value="0.1" />
-		<jar jarfile="${export.jars}/i5.las2peer.services.mobsos.dataProcessing-${MonitoringDataProcessingService.version}.jar">
-			<fileset dir="${tmp.classes}" includes="i5/las2peer/services/mobsos/dataProcessing/**" />
-			<manifest>
-				<attribute name="Library-Version" value="${MonitoringDataProcessingService.version}" />
-				<attribute name="Library-SymbolicName" value="i5.las2peer.services.mobsos.dataProcessing" />
-				<attribute name="Import-Library" value='db2jcc;version="0",db2jcc_license_cu;version="0",db2jcc;version="0",mysqlConnectorJava;version="5.1.16"' />
-			</manifest>
-		</jar>
-        <!-- Add the same Jar to the Service Directory !-->
-        <jar jarfile="${service}/i5.las2peer.services.mobsos.dataProcessing-${MonitoringDataProcessingService.version}.jar">
-            <fileset dir="${tmp.classes}" includes="${service.path}/**" />
-            <manifest>
-                <attribute name="Library-Version" value="${MonitoringDataProcessingService.version}" />
-                <attribute name="Library-SymbolicName" value="i5.las2peer.services.mobsos.dataProcessing" />
-            </manifest>
-        </jar>
-		<!-- Copy to lib folder to enable working with L2PNodeLauncher !-->
-		<jar jarfile="${lib}/i5.las2peer.services.mobsos.dataProcessing-${MonitoringDataProcessingService.version}.jar">
-			<fileset dir="${tmp.classes}" includes="i5/las2peer/services/mobsos/dataProcessing/**" />
-			<manifest>
-				<attribute name="Library-Version" value="${MonitoringDataProcessingService.version}" />
-				<attribute name="Library-SymbolicName" value="i5.las2peer.services.mobsos.dataProcessing" />
-				<attribute name="Import-Library" value='db2jcc;version="0",db2jcc_license_cu;version="0",db2jcc;version="0",mysqlConnectorJava;version="5.1.16"' />
-			</manifest>
-		</jar>
-	</target>
+	<!-- Generate Jars -->
+	    <target name="jar" depends="compile_main" description="--> jar">
+	        <jar jarfile="${export.jars}/${service.name}-${service.version}.jar">
+	            <fileset dir="${tmp.classes}" includes="${service.path}/**" />
+	            <manifest>
+	                <attribute name="Library-Version" value="${service.version}" />
+	                <attribute name="Library-SymbolicName" value="${service.name}" />
+	            	<attribute name="Import-Library" value="${service.dependencies}" />
+	            </manifest>
+	        </jar>
+	        <!-- Add the same Jar to the Service Directory !-->
+	        <jar jarfile="${service}/${service.name}-${service.version}.jar">
+	            <fileset dir="${tmp.classes}" includes="${service.path}/**" />
+	            <manifest>
+	                <attribute name="Library-Version" value="${service.version}" />
+	                <attribute name="Library-SymbolicName" value="${service.name}" />
+	            	<attribute name="Import-Library" value="${service.dependencies}" />
+	            </manifest>
+	        </jar>
+	    </target>
 
-	<target name="java_doc" depends="init_doc">
-		<javadoc destdir="${export.doc}" author="true" version="true" use="true" source="1.7" windowtitle="Monitoring Data Processing Service Documentation" failonerror="yes" encoding="utf8" classpath="${tmp.classes}" classpathref="libraries">
-			<packageset dir="${src.main}" defaultexcludes="yes">
-				<include name="i5/las2peer/**" />
-			</packageset>
-			<bottom>
-				<![CDATA[<p class="bottom">Copyright &#169; 2013 by Peter de Lange, Aachen, Germany. All Rights Reserved.</p>]]></bottom>
-	</javadoc>
-</target>
+	<!-- Generate Documentation -->
+	    <target name="java_doc" depends="init_doc">
+	        <javadoc destdir="${export.doc}"
+	            author="true"
+	            version="true"
+	            use="true"
+	            source="1.8"
+	            windowtitle="Service Documentation"
+	            failonerror="yes"
+	            encoding="utf8"
+	            classpath="${tmp.classes}"
+	            classpathref="libraries"
+	            >
+	            <packageset dir="${src.main}" defaultexcludes="yes">
+	                <include name="i5/las2peer/**" />
+	            </packageset>
+	        </javadoc>
+	    </target>
 
 <!--   JUNIT testing -->
 <target name="junit" depends="junit_tests, junit_clean" />
@@ -168,14 +182,25 @@
 </target>
 
 <!-- general cleanup; don't run this if you want to see unit test results or logging data -->
-<target name="clean">
-	<delete dir="${tmp}" />
-	<delete includeemptydirs="true">
-		<fileset dir="${log}" includes="**/*" />
-	</delete>
-	<delete dir=".las2peer" />
-</target>
+	<!-- General Cleanup -->
+		<target name="clean_before_build">
+	        <delete dir="${export}"/>
+			<delete file="${service}/${service.name}-${service.version}.jar"/>
+		</target>
 
-<target name="all" depends="MonitoringDataProcessingService_jar, junit, java_doc, clean" />
+	    <target name="clean_after_build">
+	        <delete dir="${tmp}"/>
+			<delete dir=".las2peer"/>
+	    </target>
+
+	    <target name="clean_deps">
+	        <delete dir="${lib}"/>
+	    </target>
+
+	    <target name="clean_all" depends="clean_after_build, clean_before_build, clean_deps">
+			<delete dir="${log}"/>
+	    </target>
+
+<target name="all" depends="clean_all, jar, junit, java_doc" />
 
 </project>
