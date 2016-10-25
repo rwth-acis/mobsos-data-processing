@@ -103,7 +103,7 @@ public class MonitoringDataProcessingService extends Service {
 
 	/**
 	 * 
-	 * Checks the messages content and calls {@link #persistMessage(MonitoringMessage, String)) with the corresponding
+	 * Checks the messages content and calls {@link #persistMessage(MonitoringMessage, String)} with the corresponding
 	 * values.
 	 * 
 	 * @param messages an array of {@link i5.las2peer.logging.monitoring.MonitoringMessage}s
