@@ -6,7 +6,9 @@
 	
 	<property file="etc/ant_configuration/user.properties"/>
 	<property file="etc/ant_configuration/service.properties"/>
-
+	
+	<property name="startup" location="etc/startup" />
+	
 	<property name="src.main" location="java/" />
     <property name="src.junit" location="junit/" />
     
