@@ -59,7 +59,7 @@
 		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
 	</target>
 
-	<target name="get_deps" depends="install-ivy" description="--> resolve dependencies">
+	<target name="get_deps" depends="install-ivy, init_deps" description="--> resolve dependencies">
 		<ivy:settings>
 			<credentials host="role.dbis.rwth-aachen.de:9911/archiva" realm="Repository internal" />
 		</ivy:settings>
