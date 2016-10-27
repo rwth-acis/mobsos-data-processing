@@ -30,6 +30,7 @@ public class MonitoringMessageWithEncryptedAgents {
 	 * Constructor of a MonitoringMessageWithEncryptedAgents.
 	 * 
 	 * @param monitoringMessage a {@link i5.las2peer.logging.monitoring.MonitoringMessage}
+	 * @param hashRemarks Whether you want to hash the remarks or not
 	 * 
 	 */
 	public MonitoringMessageWithEncryptedAgents(MonitoringMessage monitoringMessage, boolean hashRemarks) {

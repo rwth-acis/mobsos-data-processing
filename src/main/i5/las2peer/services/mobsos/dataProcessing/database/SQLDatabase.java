@@ -29,12 +29,12 @@ public class SQLDatabase {
 	 * 
 	 * Constructor for a database instance.
 	 * 
-	 * @param jdbcInfo
-	 * @param username
-	 * @param password
-	 * @param database
-	 * @param host
-	 * @param port
+	 * @param jdbcInfo the driver you are using
+	 * @param username login name
+	 * @param password password
+	 * @param database database name
+	 * @param host host for the connection
+	 * @param port port of the SQL server
 	 * 
 	 */
 	public SQLDatabase(SQLDatabaseType jdbcInfo, String username, String password, String database, String host,
@@ -120,7 +120,7 @@ public class SQLDatabase {
 	 * 
 	 * Executes a SQL statement to insert an entry into the database.
 	 * 
-	 * @param SQLStatment
+	 * @param SQLStatment a SQLStatement
 	 * 
 	 * @return true, if correctly inserted
 	 * 

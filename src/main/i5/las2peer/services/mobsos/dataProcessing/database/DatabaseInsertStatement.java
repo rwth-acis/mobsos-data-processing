@@ -22,11 +22,13 @@ public class DatabaseInsertStatement {
 	 * 
 	 * The entry point to this class.
 	 * 
+	 * @param db a SQLDatabse connection
 	 * @param monitoringMessage a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information
 	 *            to be stored
 	 * @param databaseType the database type the statement should be formulated for
 	 * @param DB2Schema the schema of the DB2 database (can be set to null if database is MySQL)
 	 * @param table the name of the table the query should be inserted to
+	 * @param hashRemarks whether you want to hash the remarks or not
 	 * 
 	 * @return a SQL statement
 	 * 
