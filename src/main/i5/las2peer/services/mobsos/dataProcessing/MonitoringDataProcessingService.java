@@ -1,5 +1,6 @@
 package i5.las2peer.services.mobsos.dataProcessing;
 
+import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ public class MonitoringDataProcessingService extends Service {
 	private String databaseUser;
 	private String databasePassword;
 	private String DB2Schema; // Only needed if a DB2 database is used
+	private boolean hashRemarks;
 
 	private SQLDatabase database; // The database instance to write to.
 
@@ -191,17 +193,14 @@ public class MonitoringDataProcessingService extends Service {
 			// If enabled for monitoring, add service message to database
 			else if (Math.abs(message.getEvent().getCode()) >= 7000
 					&& (Math.abs(message.getEvent().getCode()) < 8000)) {
-				// The service id is stored as sourceAgentId
-				if (monitoredServices.containsKey(message.getSourceAgentId())) {
-					if (message.getEvent() == Event.SERVICE_SHUTDOWN) {
-						returnStatement = persistMessage(message, "REGISTERED_AT");
-						if (!returnStatement)
-							return returnStatement;
-					}
-					returnStatement = persistMessage(message, "MESSAGE");
+				if (message.getEvent() == Event.SERVICE_SHUTDOWN) {
+					returnStatement = persistMessage(message, "REGISTERED_AT");
 					if (!returnStatement)
 						return returnStatement;
 				}
+				returnStatement = persistMessage(message, "MESSAGE");
+				if (!returnStatement)
+					return returnStatement;
 			} else if (message.getEvent() == Event.AGENT_REMOVED) {
 				returnStatement = persistMessage(message, "REGISTERED_AT");
 				if (!returnStatement)
@@ -238,10 +237,12 @@ public class MonitoringDataProcessingService extends Service {
 	private boolean persistMessage(MonitoringMessage message, String table) {
 		boolean returnStatement = false;
 		try {
-			String insertStatement = DatabaseInsertStatement.returnInsertStatement(message, database.getJdbcInfo(),
-					DB2Schema, table);
+			PreparedStatement insertStatement = DatabaseInsertStatement.returnInsertStatement(database, message,
+					database.getJdbcInfo(), DB2Schema, table, hashRemarks);
 			reconnect();
-			returnStatement = database.store(insertStatement);
+			int result = insertStatement.executeUpdate();
+			if (result >= 0)
+				returnStatement = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

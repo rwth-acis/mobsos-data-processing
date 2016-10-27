@@ -5,28 +5,26 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-
 /**
  * 
- * Stores the database credentials and provides access to query execution.
- * The original code was taken from the QueryVisualizationService.
+ * Stores the database credentials and provides access to query execution. The original code was taken from the
+ * QueryVisualizationService.
  * 
  * @author Peter de Lange
  * 
  */
-public class SQLDatabase{
-	
-	private Connection connection = null;
+public class SQLDatabase {
+
+	public Connection connection = null;
 	private boolean isConnected = false;
-	
+
 	private SQLDatabaseType jdbcInfo = null;
 	private String username = null;
 	private String password = null;
 	private String database = null;
 	private String host = null;
 	private int port = -1;
-	
-	
+
 	/**
 	 * 
 	 * Constructor for a database instance.
@@ -39,7 +37,8 @@ public class SQLDatabase{
 	 * @param port
 	 * 
 	 */
-	public SQLDatabase(SQLDatabaseType jdbcInfo, String username, String password, String database, String host, int port){		
+	public SQLDatabase(SQLDatabaseType jdbcInfo, String username, String password, String database, String host,
+			int port) {
 		this.jdbcInfo = jdbcInfo;
 		this.username = username;
 		this.password = password;
@@ -47,8 +46,7 @@ public class SQLDatabase{
 		this.port = port;
 		this.database = database;
 	}
-	
-	
+
 	/**
 	 * 
 	 * Connects to the database.
@@ -59,29 +57,27 @@ public class SQLDatabase{
 	 * @throws SQLException if connecting did not work
 	 * 
 	 */
-	public boolean connect() throws Exception{
+	public boolean connect() throws Exception {
 		try {
 			Class.forName(jdbcInfo.getDriverName()).newInstance();
 			String urlPrefix = jdbcInfo.getURLPrefix(this.host, this.database, this.port);
 			this.connection = DriverManager.getConnection(urlPrefix, this.username, this.password);
-			
-			if(!this.connection.isClosed()){
+
+			if (!this.connection.isClosed()) {
 				this.isConnected = true;
 				return true;
-			}
-			else{
+			} else {
 				return false;
 			}
-		} 
-		catch (ClassNotFoundException e){
-			throw new Exception("JDBC-Driver for requested database type not found! Make sure the library is defined in the settings and is placed in the library folder!", e);
-		}
-		catch (SQLException e){
+		} catch (ClassNotFoundException e) {
+			throw new Exception(
+					"JDBC-Driver for requested database type not found! Make sure the library is defined in the settings and is placed in the library folder!",
+					e);
+		} catch (SQLException e) {
 			throw e;
 		}
 	}
-	
-	
+
 	/**
 	 * 
 	 * Disconnects from the database.
@@ -89,23 +85,21 @@ public class SQLDatabase{
 	 * @return true, if correctly disconnected
 	 * 
 	 */
-	public boolean disconnect(){
-		try{
+	public boolean disconnect() {
+		try {
 			this.connection.close();
 			this.isConnected = false;
 			this.connection = null;
-			
+
 			return true;
-		} 
-		catch (SQLException e){
+		} catch (SQLException e) {
 			e.printStackTrace();
 			this.isConnected = false;
 			this.connection = null;
 		}
 		return false;
 	}
-	
-	
+
 	/**
 	 * 
 	 * Checks, if this database instance is currently connected.
@@ -113,16 +107,15 @@ public class SQLDatabase{
 	 * @return true, if connected
 	 * 
 	 */
-	public boolean isConnected(){
-		try{
+	public boolean isConnected() {
+		try {
 			return (this.isConnected && this.connection != null && !this.connection.isClosed());
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
 		}
 	}
-	
-	
+
 	/**
 	 * 
 	 * Executes a SQL statement to insert an entry into the database.
@@ -134,48 +127,41 @@ public class SQLDatabase{
 	 * @throws SQLException problems inserting
 	 * 
 	 */
-	public boolean store(String SQLStatment) throws SQLException{
+	public boolean store(String SQLStatment) throws SQLException {
 		// make sure one is connected to a database
-		if(!isConnected()){
+		if (!isConnected()) {
 			System.err.println("No database connection.");
 			return false;
 		}
-		
+
 		Statement statement = connection.createStatement();
 		statement.executeUpdate(SQLStatment);
 		return true;
-		
+
 	}
-	
-	
-	public String getUser(){
+
+	public String getUser() {
 		return this.username;
 	}
-	
-	
-	public String getPassword(){
+
+	public String getPassword() {
 		return this.password;
 	}
-	
-	
-	public String getDatabase(){
+
+	public String getDatabase() {
 		return this.database;
 	}
-	
-	
-	public String getHost(){
+
+	public String getHost() {
 		return this.host;
 	}
-	
-	
-	public int getPort(){
+
+	public int getPort() {
 		return this.port;
 	}
-	
-	
-	public SQLDatabaseType getJdbcInfo(){
+
+	public SQLDatabaseType getJdbcInfo() {
 		return jdbcInfo;
 	}
-	
-	
+
 }
