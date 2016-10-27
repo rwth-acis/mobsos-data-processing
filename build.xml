@@ -185,23 +185,17 @@
 
 <!-- general cleanup; don't run this if you want to see unit test results or logging data -->
 	<!-- General Cleanup -->
-		<target name="clean_before_build">
-	        <delete dir="${export}"/>
-			<delete file="${service}/${service.name}-${service.version}.jar"/>
-		</target>
+    <target name="clean" description="--> clean">
+        <delete dir="${tmp}" />
+        <delete dir="${export}" />
+        <delete dir="${lib}" />
+        <delete dir="${service}" />
+    </target>
 
-	    <target name="clean_after_build">
-	        <delete dir="${tmp}"/>
-			<delete dir=".las2peer"/>
-	    </target>
-
-	    <target name="clean_deps">
-	        <delete dir="${lib}"/>
-	    </target>
-
-	    <target name="clean_all" depends="clean_after_build, clean_before_build, clean_deps">
-			<delete dir="${log}"/>
-	    </target>
+    <target name="clean_all" depends="clean" description="--> clean all data">
+        <delete dir="${log}"/>
+        <delete dir="node-storage"/>
+    </target>
 
 <target name="all" depends="clean_all, jar, junit, java_doc" />
 
