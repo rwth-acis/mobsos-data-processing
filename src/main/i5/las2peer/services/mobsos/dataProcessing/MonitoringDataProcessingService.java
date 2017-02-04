@@ -243,6 +243,7 @@ public class MonitoringDataProcessingService extends Service {
 			int result = insertStatement.executeUpdate();
 			if (result >= 0)
 				returnStatement = true;
+			insertStatement.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

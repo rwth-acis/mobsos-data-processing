@@ -452,13 +452,14 @@ public class DatabaseInsertStatement {
 
 			if (monitoringMessage.getSourceAgentId() == null || monitoringMessage.getRemarks() == null)
 				throw new Exception("Missing information for persisting service entity!");
-			statement = db.connection.prepareStatement("MERGE INTO " + DB2Schema + ".SERVICE service1 USING (VALUES('"
+			String sql = "MERGE INTO " + DB2Schema + ".SERVICE service1 USING (VALUES('"
 					+ monitoringMessage.getSourceAgentId() + "', '" + monitoringMessage.getRemarks() + "')) "
-					+ "AS service2(AGENT_ID,SERVICE_CLASS_NAME) AS service2(AGENT_ID,SERVICE_CLASS_NAME) "
+					+ "AS service2(AGENT_ID,SERVICE_CLASS_NAME) "
 					+ "ON service1.AGENT_ID=service2.AGENT_ID WHEN MATCHED THEN "
 					+ "UPDATE SET service1.SERVICE_CLASS_NAME = service2.SERVICE_CLASS_NAME "
 					+ "WHEN NOT MATCHED THEN INSERT (AGENT_ID, SERVICE_CLASS_NAME) VALUES('"
-					+ monitoringMessage.getSourceAgentId() + "', '" + monitoringMessage.getRemarks() + "'");
+					+ monitoringMessage.getSourceAgentId() + "', '" + monitoringMessage.getRemarks() + "')";
+			statement = db.connection.prepareStatement(sql);
 		} catch (Exception e) {
 			// TODO LOG
 			e.printStackTrace();
