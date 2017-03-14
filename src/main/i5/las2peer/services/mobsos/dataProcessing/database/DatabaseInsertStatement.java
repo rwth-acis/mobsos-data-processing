@@ -338,7 +338,7 @@ public class DatabaseInsertStatement {
 		try {
 			statement = db.connection.prepareStatement(
 					"INSERT INTO " + DB2Schema + ".MESSAGE (EVENT, TIME_STAMP, SOURCE_NODE, SOURCE_AGENT, "
-							+ "DESTINATION_NODE, DESTINATION_AGENT, REMARKS) VALUES (?,?,?,?,?,?,?);");
+							+ "DESTINATION_NODE, DESTINATION_AGENT, REMARKS) VALUES (?,?,?,?,?,?,?)");
 
 			statement.setString(1, message.getEvent().toString()); // EVENT
 			statement.setLong(2, message.getTimestamp()); // TIME_STAMP
@@ -391,10 +391,6 @@ public class DatabaseInsertStatement {
 			MonitoringMessageWithEncryptedAgents monitoringMessage, String DB2Schema) throws Exception {
 		PreparedStatement statement = null;
 		try {
-			statement = db.connection.prepareStatement("MERGE INTO " + DB2Schema
-					+ ".AGENT agent1 USING (VALUES(?, ?)) AS agent2(AGENT_ID,TYPE) ON agent1.AGENT_ID=agent2.AGENT_ID "
-					+ "WHEN MATCHED THEN UPDATE SET agent1.TYPE = agent2.TYPE WHEN NOT MATCHED THEN "
-					+ "INSERT (AGENT_ID, TYPE) VALUES(?,?)");
 
 			if (monitoringMessage.getSourceNode() == null || monitoringMessage.getSourceAgentId() == null
 					|| monitoringMessage.getRemarks() == null)
@@ -422,11 +418,13 @@ public class DatabaseInsertStatement {
 			} else {
 				throw new Exception("Agent entities will only be persisted if registered at a node!");
 			}
-			statement.setString(1, monitoringMessage.getSourceAgentId());
-			statement.setString(2, agentType);
 
-			statement.setString(3, monitoringMessage.getSourceAgentId());
-			statement.setString(4, agentType);
+			statement = db.connection.prepareStatement(
+					"MERGE INTO " + DB2Schema + ".AGENT agent1 USING (VALUES('" + monitoringMessage.getSourceAgentId()
+							+ "', '" + agentType + "')) AS agent2(AGENT_ID,TYPE) ON agent1.AGENT_ID=agent2.AGENT_ID "
+							+ "WHEN MATCHED THEN UPDATE SET agent1.TYPE = agent2.TYPE WHEN NOT MATCHED THEN "
+							+ "INSERT (AGENT_ID, TYPE) VALUES('" + monitoringMessage.getSourceAgentId() + "', '"
+							+ agentType + "')");
 		} catch (Exception e) {
 			// TODO LOG
 			e.printStackTrace();
@@ -451,20 +449,17 @@ public class DatabaseInsertStatement {
 			MonitoringMessageWithEncryptedAgents monitoringMessage, String DB2Schema) throws Exception {
 		PreparedStatement statement = null;
 		try {
-			statement = db.connection
-					.prepareStatement("MERGE INTO " + DB2Schema + ".SERVICE service1 USING (VALUES(?,?)) "
-							+ "AS service2(AGENT_ID,SERVICE_CLASS_NAME) AS service2(AGENT_ID,SERVICE_CLASS_NAME) "
-							+ "ON service1.AGENT_ID=service2.AGENT_ID WHEN MATCHED THEN "
-							+ "UPDATE SET service1.SERVICE_CLASS_NAME = service2.SERVICE_CLASS_NAME "
-							+ "WHEN NOT MATCHED THEN INSERT (AGENT_ID, SERVICE_CLASS_NAME) VALUES(?, ?");
 
 			if (monitoringMessage.getSourceAgentId() == null || monitoringMessage.getRemarks() == null)
 				throw new Exception("Missing information for persisting service entity!");
-			statement.setString(1, monitoringMessage.getSourceAgentId());
-			statement.setString(2, monitoringMessage.getRemarks());
-
-			statement.setString(3, monitoringMessage.getSourceAgentId());
-			statement.setString(4, monitoringMessage.getRemarks());
+			String sql = "MERGE INTO " + DB2Schema + ".SERVICE service1 USING (VALUES('"
+					+ monitoringMessage.getSourceAgentId() + "', '" + monitoringMessage.getRemarks() + "')) "
+					+ "AS service2(AGENT_ID,SERVICE_CLASS_NAME) "
+					+ "ON service1.AGENT_ID=service2.AGENT_ID WHEN MATCHED THEN "
+					+ "UPDATE SET service1.SERVICE_CLASS_NAME = service2.SERVICE_CLASS_NAME "
+					+ "WHEN NOT MATCHED THEN INSERT (AGENT_ID, SERVICE_CLASS_NAME) VALUES('"
+					+ monitoringMessage.getSourceAgentId() + "', '" + monitoringMessage.getRemarks() + "')";
+			statement = db.connection.prepareStatement(sql);
 		} catch (Exception e) {
 			// TODO LOG
 			e.printStackTrace();
@@ -539,11 +534,7 @@ public class DatabaseInsertStatement {
 			MonitoringMessageWithEncryptedAgents monitoringMessage, String DB2Schema) throws Exception {
 		PreparedStatement statement = null;
 		try {
-			statement = db.connection.prepareStatement(
-					"MERGE INTO " + DB2Schema + ".NODE node1 USING (VALUES(?, ?)) AS node2(NODE_ID,NODE_LOCATION) "
-							+ "ON node1.NODE_ID=node2.NODE_ID WHEN MATCHED THEN "
-							+ "UPDATE SET node1.NODE_LOCATION = node2.NODE_LOCATION "
-							+ "WHEN NOT MATCHED THEN INSERT (NODE_ID, NODE_LOCATION) VALUES(?,?)");
+
 			if (monitoringMessage.getEvent() == Event.NODE_STATUS_CHANGE) {
 				if (monitoringMessage.getSourceNode() == null)
 					throw new Exception("Missing information for persisting node entity!");
@@ -551,11 +542,12 @@ public class DatabaseInsertStatement {
 				int startingLocationPosition = monitoringMessage.getSourceNode().lastIndexOf("/") + 1;
 				String nodeLocation = monitoringMessage.getSourceNode().substring(startingLocationPosition);
 				// Duplicate can happen because of new node notices
-				statement.setString(1, nodeId);
-				statement.setString(2, nodeLocation);
-
-				statement.setString(3, nodeId);
-				statement.setString(4, nodeLocation);
+				statement = db.connection.prepareStatement("MERGE INTO " + DB2Schema + ".NODE node1 USING (VALUES('"
+						+ nodeId + "', '" + nodeLocation + "')) AS node2(NODE_ID,NODE_LOCATION) "
+						+ "ON node1.NODE_ID=node2.NODE_ID WHEN MATCHED THEN "
+						+ "UPDATE SET node1.NODE_LOCATION = node2.NODE_LOCATION "
+						+ "WHEN NOT MATCHED THEN INSERT (NODE_ID, NODE_LOCATION) VALUES('" + nodeId + "', '"
+						+ nodeLocation + "')");
 			} else {
 				throw new Exception("Node persistence only at new node notice or node creation events!");
 			}
