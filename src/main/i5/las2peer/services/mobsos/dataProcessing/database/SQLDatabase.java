@@ -3,7 +3,7 @@ package i5.las2peer.services.mobsos.dataProcessing.database;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 
 /**
  * 
@@ -116,7 +116,7 @@ public class SQLDatabase {
 		case 1:
 			dataSource.setValidationQuery("LIST TABLES");
 		case 2:
-			dataSource.setValidationQuery("SHOW TABLES");
+			dataSource.setValidationQuery("SELECT 1;");
 		}
 	}
 
