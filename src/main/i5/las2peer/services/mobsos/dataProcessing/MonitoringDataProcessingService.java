@@ -53,30 +53,6 @@ public class MonitoringDataProcessingService extends Service {
 		System.out.println(databaseTypeInt);
 		this.database = new SQLDatabase(this.databaseType, this.databaseUser, this.databasePassword, this.databaseName,
 				this.databaseHost, this.databasePort);
-		try {
-			this.database.connect();
-			System.out.println("Monitoring: Database connected!");
-		} catch (Exception e) {
-			System.out.println("Monitoring: Could not connect to database!");
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * 
-	 * Reconnect to the database (can be called in case of an error).
-	 * 
-	 */
-	public void reconnect() {
-		try {
-			if (!database.isConnected()) {
-				this.database.connect();
-				System.out.println("Monitoring: Database reconnected!");
-			}
-		} catch (Exception e) {
-			System.out.println("Monitoring: Could not connect to database!");
-			e.printStackTrace();
-		}
 	}
 
 	/**
@@ -239,7 +215,6 @@ public class MonitoringDataProcessingService extends Service {
 		try {
 			PreparedStatement insertStatement = DatabaseInsertStatement.returnInsertStatement(database, message,
 					database.getJdbcInfo(), DB2Schema, table, hashRemarks);
-			reconnect();
 			int result = insertStatement.executeUpdate();
 			if (result >= 0)
 				returnStatement = true;

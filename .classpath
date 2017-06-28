@@ -12,5 +12,7 @@
 	<classpathentry kind="lib" path="lib/junit-4.12.jar"/>
 	<classpathentry kind="lib" path="lib/las2peer-0.6.7.jar"/>
 	<classpathentry kind="lib" path="lib/las2peer-http-connector-0.6.7.jar"/>
+	<classpathentry kind="lib" path="lib/commons-dbcp-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-pool-1.5.4.jar"/>
 	<classpathentry kind="output" path="output"/>
 </classpath>

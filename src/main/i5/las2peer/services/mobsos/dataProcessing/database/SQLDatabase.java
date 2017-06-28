@@ -1,9 +1,9 @@
 package i5.las2peer.services.mobsos.dataProcessing.database;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import org.apache.commons.dbcp.BasicDataSource;
 
 /**
  * 
@@ -15,8 +15,7 @@ import java.sql.Statement;
  */
 public class SQLDatabase {
 
-	public Connection connection = null;
-	private boolean isConnected = false;
+	private BasicDataSource dataSource;
 
 	private SQLDatabaseType jdbcInfo = null;
 	private String username = null;
@@ -39,81 +38,26 @@ public class SQLDatabase {
 	 */
 	public SQLDatabase(SQLDatabaseType jdbcInfo, String username, String password, String database, String host,
 			int port) {
+
 		this.jdbcInfo = jdbcInfo;
 		this.username = username;
 		this.password = password;
 		this.host = host;
 		this.port = port;
 		this.database = database;
-	}
 
-	/**
-	 * 
-	 * Connects to the database.
-	 * 
-	 * @return true, if connected
-	 * 
-	 * @throws ClassNotFoundException if the driver was not found
-	 * @throws SQLException if connecting did not work
-	 * 
-	 */
-	public boolean connect() throws Exception {
-		try {
-			Class.forName(jdbcInfo.getDriverName()).newInstance();
-			String urlPrefix = jdbcInfo.getURLPrefix(this.host, this.database, this.port);
-			this.connection = DriverManager.getConnection(urlPrefix, this.username, this.password);
+		BasicDataSource ds = new BasicDataSource();
+		String urlPrefix = jdbcInfo.getURLPrefix(this.host, this.database, this.port) + "?autoReconnect=true";
+		ds.setUrl(urlPrefix);
+		ds.setUsername(username);
+		ds.setPassword(password);
+		ds.setDriverClassName(jdbcInfo.getDriverName());
+		ds.setMinIdle(5);
+		ds.setMaxIdle(10);
+		ds.setMaxOpenPreparedStatements(100);
 
-			if (!this.connection.isClosed()) {
-				this.isConnected = true;
-				return true;
-			} else {
-				return false;
-			}
-		} catch (ClassNotFoundException e) {
-			throw new Exception(
-					"JDBC-Driver for requested database type not found! Make sure the library is defined in the settings and is placed in the library folder!",
-					e);
-		} catch (SQLException e) {
-			throw e;
-		}
-	}
-
-	/**
-	 * 
-	 * Disconnects from the database.
-	 * 
-	 * @return true, if correctly disconnected
-	 * 
-	 */
-	public boolean disconnect() {
-		try {
-			this.connection.close();
-			this.isConnected = false;
-			this.connection = null;
-
-			return true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			this.isConnected = false;
-			this.connection = null;
-		}
-		return false;
-	}
-
-	/**
-	 * 
-	 * Checks, if this database instance is currently connected.
-	 * 
-	 * @return true, if connected
-	 * 
-	 */
-	public boolean isConnected() {
-		try {
-			return (this.isConnected && this.connection != null && !this.connection.isClosed());
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
-		}
+		dataSource = ds;
+		setValidationQuery();
 	}
 
 	/**
@@ -129,12 +73,11 @@ public class SQLDatabase {
 	 */
 	public boolean store(String SQLStatment) throws SQLException {
 		// make sure one is connected to a database
-		if (!isConnected()) {
+		if (!dataSource.getConnection().isValid(5000)) {
 			System.err.println("No database connection.");
 			return false;
 		}
-
-		Statement statement = connection.createStatement();
+		Statement statement = dataSource.getConnection().createStatement();
 		statement.executeUpdate(SQLStatment);
 		return true;
 
@@ -162,6 +105,19 @@ public class SQLDatabase {
 
 	public SQLDatabaseType getJdbcInfo() {
 		return jdbcInfo;
+	}
+
+	public BasicDataSource getDataSource() {
+		return dataSource;
+	}
+
+	private void setValidationQuery() {
+		switch (jdbcInfo.getCode()) {
+		case 1:
+			dataSource.setValidationQuery("LIST TABLES");
+		case 2:
+			dataSource.setValidationQuery("SHOW TABLES");
+		}
 	}
 
 }
