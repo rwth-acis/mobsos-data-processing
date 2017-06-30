@@ -52,9 +52,12 @@ public class SQLDatabase {
 		ds.setUsername(username);
 		ds.setPassword(password);
 		ds.setDriverClassName(jdbcInfo.getDriverName());
-		ds.setMinIdle(5);
-		ds.setMaxIdle(10);
+		ds.setPoolPreparedStatements(true);
+		ds.setTestOnBorrow(true);
+		ds.setRemoveAbandonedOnBorrow(true);
+		ds.setRemoveAbandonedOnMaintenance(true);
 		ds.setMaxOpenPreparedStatements(100);
+		ds.setMaxConnLifetimeMillis(1000 * 60 * 60);
 
 		dataSource = ds;
 		setValidationQuery();

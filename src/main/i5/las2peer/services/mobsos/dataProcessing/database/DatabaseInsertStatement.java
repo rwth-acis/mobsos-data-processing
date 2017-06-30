@@ -1,5 +1,6 @@
 package i5.las2peer.services.mobsos.dataProcessing.database;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 
@@ -22,7 +23,7 @@ public class DatabaseInsertStatement {
 	 * 
 	 * The entry point to this class.
 	 * 
-	 * @param db a SQLDatabse connection
+	 * @param con a SQLDatabse connection
 	 * @param monitoringMessage a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information
 	 *            to be stored
 	 * @param databaseType the database type the statement should be formulated for
@@ -35,30 +36,29 @@ public class DatabaseInsertStatement {
 	 * @throws Exception if the given information was not correct or sufficient for the desired table entry
 	 * 
 	 */
-	public static PreparedStatement returnInsertStatement(SQLDatabase db, MonitoringMessage monitoringMessage,
+	public static PreparedStatement returnInsertStatement(Connection con, MonitoringMessage monitoringMessage,
 			SQLDatabaseType databaseType, String DB2Schema, String table, boolean hashRemarks) throws Exception {
 		MonitoringMessageWithEncryptedAgents message = new MonitoringMessageWithEncryptedAgents(monitoringMessage,
 				hashRemarks);
 		if (databaseType == SQLDatabaseType.MySQL) {
-
 			if (table.equals("MESSAGE")) {
-				return returnMySQLMessageStatement(db, message);
+				return returnMySQLMessageStatement(con, message);
 			}
 
 			else if (table.equals("AGENT")) {
-				return returnMySQLAgentStatement(db, message);
+				return returnMySQLAgentStatement(con, message);
 			}
 
 			else if (table.equals("SERVICE")) {
-				return returnMySQLServiceStatement(db, message);
+				return returnMySQLServiceStatement(con, message);
 			}
 
 			else if (table.equals("NODE")) {
-				return returnMySQLNodeStatement(db, message);
+				return returnMySQLNodeStatement(con, message);
 			}
 
 			else if (table.equals("REGISTERED_AT")) {
-				return returnMySQLRegisteredAtStatement(db, message);
+				return returnMySQLRegisteredAtStatement(con, message);
 			}
 
 			else {
@@ -69,23 +69,23 @@ public class DatabaseInsertStatement {
 
 		else if (databaseType == SQLDatabaseType.DB2) {
 			if (table.equals("MESSAGE")) {
-				return returnDB2MessageStatement(db, message, DB2Schema);
+				return returnDB2MessageStatement(con, message, DB2Schema);
 			}
 
 			else if (table.equals("AGENT")) {
-				return returnDB2AgentStatement(db, message, DB2Schema);
+				return returnDB2AgentStatement(con, message, DB2Schema);
 			}
 
 			else if (table.equals("SERVICE")) {
-				return returnDB2ServiceStatement(db, message, DB2Schema);
+				return returnDB2ServiceStatement(con, message, DB2Schema);
 			}
 
 			else if (table.equals("NODE")) {
-				return returnDB2NodeStatement(db, message, DB2Schema);
+				return returnDB2NodeStatement(con, message, DB2Schema);
 			}
 
 			else if (table.equals("REGISTERED_AT")) {
-				return returnDB2RegisteredAtStatement(db, message, DB2Schema);
+				return returnDB2RegisteredAtStatement(con, message, DB2Schema);
 			}
 
 			else {
@@ -109,11 +109,11 @@ public class DatabaseInsertStatement {
 	 * @return a MySQL statement
 	 * 
 	 */
-	private static PreparedStatement returnMySQLMessageStatement(SQLDatabase db,
+	private static PreparedStatement returnMySQLMessageStatement(Connection con,
 			MonitoringMessageWithEncryptedAgents message) {
 		PreparedStatement statement = null;
 		try {
-			statement = db.getDataSource().getConnection()
+			statement = con
 					.prepareStatement("INSERT INTO MESSAGE (`EVENT`, `TIME_STAMP`, `SOURCE_NODE`, `SOURCE_AGENT`, "
 							+ "`DESTINATION_NODE`, `DESTINATION_AGENT`, `REMARKS`) VALUES (?,?,?,?,?,?,?);");
 			statement.setString(1, message.getEvent().toString()); // EVENT
@@ -145,6 +145,7 @@ public class DatabaseInsertStatement {
 			}
 		} catch (Exception e) {
 			// TODO LOG
+			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
 		return statement;
@@ -162,11 +163,11 @@ public class DatabaseInsertStatement {
 	 * @throws Exception if the given information was not correct or sufficient for the desired table entry
 	 * 
 	 */
-	private static PreparedStatement returnMySQLAgentStatement(SQLDatabase db,
+	private static PreparedStatement returnMySQLAgentStatement(Connection con,
 			MonitoringMessageWithEncryptedAgents monitoringMessage) throws Exception {
 		PreparedStatement statement = null;
 		try {
-			statement = db.getDataSource().getConnection().prepareStatement(
+			statement = con.prepareStatement(
 					"INSERT INTO AGENT(AGENT_ID, TYPE) VALUES(?,?) ON DUPLICATE KEY UPDATE AGENT_ID=AGENT_ID;");
 
 			if (monitoringMessage.getSourceNode() == null || monitoringMessage.getSourceAgentId() == null
@@ -179,15 +180,15 @@ public class DatabaseInsertStatement {
 			else if (monitoringMessage.getEvent() == Event.AGENT_REGISTERED) {
 				if (monitoringMessage.getRemarks().equals("ServiceAgent")) {
 					throw new Exception("ServiceAgents are only persisted when added to monitoring!");
-				} else if (monitoringMessage.getRemarks().equals("UserAgent")) {
+				} else if (monitoringMessage.getRemarks().contains("UserAgent")) {
 					agentType = "USER";
-				} else if (monitoringMessage.getRemarks().equals("GroupAgent")) {
+				} else if (monitoringMessage.getRemarks().contains("GroupAgent")) {
 					agentType = "GROUP";
-				} else if (monitoringMessage.getRemarks().equals("MonitoringAgent")) {
+				} else if (monitoringMessage.getRemarks().contains("MonitoringAgent")) {
 					agentType = "MONITORING";
-				} else if (monitoringMessage.getRemarks().equals("ServiceInfoAgent")) {
+				} else if (monitoringMessage.getRemarks().contains("ServiceInfoAgent")) {
 					agentType = "SERVICE_INFO";
-				} else if (monitoringMessage.getRemarks().equals("Mediator")) {
+				} else if (monitoringMessage.getRemarks().contains("Mediator")) {
 					// Thats right, we treat mediators as agents (as from a monitoring point of view, this is the same)
 					agentType = "MEDIATOR";
 				} else {
@@ -218,11 +219,11 @@ public class DatabaseInsertStatement {
 	 * @throws Exception if the given information was not correct or sufficient for the desired table entry
 	 * 
 	 */
-	private static PreparedStatement returnMySQLServiceStatement(SQLDatabase db,
+	private static PreparedStatement returnMySQLServiceStatement(Connection con,
 			MonitoringMessageWithEncryptedAgents monitoringMessage) throws Exception {
 		PreparedStatement statement = null;
 		try {
-			statement = db.getDataSource().getConnection().prepareStatement(
+			statement = con.prepareStatement(
 					"INSERT INTO SERVICE(AGENT_ID, SERVICE_CLASS_NAME) VALUES(?,?) ON DUPLICATE KEY UPDATE AGENT_ID=AGENT_ID;");
 
 			if (monitoringMessage.getSourceAgentId() == null || monitoringMessage.getRemarks() == null)
@@ -248,7 +249,7 @@ public class DatabaseInsertStatement {
 	 * @throws Exception if the given information was not correct or sufficient for the desired table entry
 	 * 
 	 */
-	private static PreparedStatement returnMySQLRegisteredAtStatement(SQLDatabase db,
+	private static PreparedStatement returnMySQLRegisteredAtStatement(Connection con,
 			MonitoringMessageWithEncryptedAgents message) throws Exception {
 		PreparedStatement statement = null;
 		try {
@@ -261,19 +262,19 @@ public class DatabaseInsertStatement {
 			if (message.getEvent() == Event.AGENT_REGISTERED || message.getEvent() == Event.SERVICE_ADD_TO_MONITORING) {
 				if (message.getSourceAgentId() == null)
 					throw new Exception("Missing information for persisting 'registered at' entity!");
-				statement = db.getDataSource().getConnection().prepareStatement(
+				statement = con.prepareStatement(
 						"INSERT INTO REGISTERED_AT(REGISTRATION_DATE, AGENT_ID, RUNNING_AT) VALUES(?, ?, ?);");
 				statement.setString(1, timestamp);
 				statement.setString(2, message.getSourceAgentId());
 				statement.setString(3, nodeId);
 			} else if (message.getEvent() == Event.AGENT_REMOVED || message.getEvent() == Event.SERVICE_SHUTDOWN) {
-				statement = db.getDataSource().getConnection().prepareStatement(
+				statement = con.prepareStatement(
 						"UPDATE REGISTERED_AT SET UNREGISTRATION_DATE=? WHERE RUNNING_AT=? AND AGENT_ID=? AND UNREGISTRATION_DATE IS NULL;");
 				statement.setString(1, timestamp);
 				statement.setString(2, nodeId);
 				statement.setString(3, message.getSourceAgentId());
 			} else { // We need to unregister those who have not yet unregistered -> update statement!
-				statement = db.getDataSource().getConnection().prepareStatement(
+				statement = con.prepareStatement(
 						"UPDATE REGISTERED_AT SET UNREGISTRATION_DATE=? WHERE RUNNING_AT=? AND UNREGISTRATION_DATE IS NULL;");
 				statement.setString(1, timestamp);
 				statement.setString(2, nodeId);
@@ -297,11 +298,11 @@ public class DatabaseInsertStatement {
 	 * @throws Exception if the given information was not correct or sufficient for the desired table entry
 	 * 
 	 */
-	private static PreparedStatement returnMySQLNodeStatement(SQLDatabase db,
+	private static PreparedStatement returnMySQLNodeStatement(Connection con,
 			MonitoringMessageWithEncryptedAgents monitoringMessage) throws Exception {
 		PreparedStatement statement = null;
 		try {
-			statement = db.getDataSource().getConnection().prepareStatement(
+			statement = con.prepareStatement(
 					"INSERT INTO NODE(NODE_ID, NODE_LOCATION) VALUES(?,?) ON DUPLICATE KEY UPDATE NODE_ID = NODE_ID;");
 			if (monitoringMessage.getEvent() == Event.NODE_STATUS_CHANGE) {
 				if (monitoringMessage.getSourceNode() == null)
@@ -332,11 +333,11 @@ public class DatabaseInsertStatement {
 	 * @return a DB2 statement
 	 * 
 	 */
-	private static PreparedStatement returnDB2MessageStatement(SQLDatabase db,
+	private static PreparedStatement returnDB2MessageStatement(Connection con,
 			MonitoringMessageWithEncryptedAgents message, String DB2Schema) {
 		PreparedStatement statement = null;
 		try {
-			statement = db.getDataSource().getConnection().prepareStatement(
+			statement = con.prepareStatement(
 					"INSERT INTO " + DB2Schema + ".MESSAGE (EVENT, TIME_STAMP, SOURCE_NODE, SOURCE_AGENT, "
 							+ "DESTINATION_NODE, DESTINATION_AGENT, REMARKS) VALUES (?,?,?,?,?,?,?)");
 
@@ -387,7 +388,7 @@ public class DatabaseInsertStatement {
 	 * @throws Exception if the given information was not correct or sufficient for the desired table entry
 	 * 
 	 */
-	private static PreparedStatement returnDB2AgentStatement(SQLDatabase db,
+	private static PreparedStatement returnDB2AgentStatement(Connection con,
 			MonitoringMessageWithEncryptedAgents monitoringMessage, String DB2Schema) throws Exception {
 		PreparedStatement statement = null;
 		try {
@@ -419,10 +420,9 @@ public class DatabaseInsertStatement {
 				throw new Exception("Agent entities will only be persisted if registered at a node!");
 			}
 
-			statement = db.getDataSource().getConnection()
-					.prepareStatement("MERGE INTO " + DB2Schema + ".AGENT agent1 USING (VALUES('"
-							+ monitoringMessage.getSourceAgentId() + "', '" + agentType
-							+ "')) AS agent2(AGENT_ID,TYPE) ON agent1.AGENT_ID=agent2.AGENT_ID "
+			statement = con.prepareStatement(
+					"MERGE INTO " + DB2Schema + ".AGENT agent1 USING (VALUES('" + monitoringMessage.getSourceAgentId()
+							+ "', '" + agentType + "')) AS agent2(AGENT_ID,TYPE) ON agent1.AGENT_ID=agent2.AGENT_ID "
 							+ "WHEN MATCHED THEN UPDATE SET agent1.TYPE = agent2.TYPE WHEN NOT MATCHED THEN "
 							+ "INSERT (AGENT_ID, TYPE) VALUES('" + monitoringMessage.getSourceAgentId() + "', '"
 							+ agentType + "')");
@@ -446,7 +446,7 @@ public class DatabaseInsertStatement {
 	 * @throws Exception if the given information was not correct or sufficient for the desired table entry
 	 * 
 	 */
-	private static PreparedStatement returnDB2ServiceStatement(SQLDatabase db,
+	private static PreparedStatement returnDB2ServiceStatement(Connection con,
 			MonitoringMessageWithEncryptedAgents monitoringMessage, String DB2Schema) throws Exception {
 		PreparedStatement statement = null;
 		try {
@@ -460,7 +460,7 @@ public class DatabaseInsertStatement {
 					+ "UPDATE SET service1.SERVICE_CLASS_NAME = service2.SERVICE_CLASS_NAME "
 					+ "WHEN NOT MATCHED THEN INSERT (AGENT_ID, SERVICE_CLASS_NAME) VALUES('"
 					+ monitoringMessage.getSourceAgentId() + "', '" + monitoringMessage.getRemarks() + "')";
-			statement = db.getDataSource().getConnection().prepareStatement(sql);
+			statement = con.prepareStatement(sql);
 		} catch (Exception e) {
 			// TODO LOG
 			e.printStackTrace();
@@ -481,7 +481,7 @@ public class DatabaseInsertStatement {
 	 * @throws Exception if the given information was not correct or sufficient for the desired table entry
 	 * 
 	 */
-	private static PreparedStatement returnDB2RegisteredAtStatement(SQLDatabase db,
+	private static PreparedStatement returnDB2RegisteredAtStatement(Connection con,
 			MonitoringMessageWithEncryptedAgents message, String DB2Schema) throws Exception {
 		PreparedStatement statement = null;
 		try {
@@ -494,19 +494,19 @@ public class DatabaseInsertStatement {
 			if (message.getEvent() == Event.AGENT_REGISTERED || message.getEvent() == Event.SERVICE_ADD_TO_MONITORING) {
 				if (message.getSourceAgentId() == null)
 					throw new Exception("Missing information for persisting 'registered at' entity!");
-				statement = db.getDataSource().getConnection().prepareStatement("INSERT INTO " + DB2Schema
+				statement = con.prepareStatement("INSERT INTO " + DB2Schema
 						+ ".REGISTERED_AT(REGISTRATION_DATE, AGENT_ID, RUNNING_AT) VALUES(?,?,?)");
 				statement.setString(1, timestamp);
 				statement.setString(2, message.getSourceAgentId());
 				statement.setString(3, nodeId);
 			} else if (message.getEvent() == Event.AGENT_REMOVED || message.getEvent() == Event.SERVICE_SHUTDOWN) {
-				statement = db.getDataSource().getConnection().prepareStatement("UPDATE " + DB2Schema
+				statement = con.prepareStatement("UPDATE " + DB2Schema
 						+ ".REGISTERED_AT SET UNREGISTRATION_DATE=? WHERE RUNNING_AT=? AND AGENT_ID=? AND UNREGISTRATION_DATE IS NULL");
 				statement.setString(1, timestamp);
 				statement.setString(2, nodeId);
 				statement.setString(3, message.getSourceAgentId());
 			} else { // We need to unregister those who have not yet unregistered -> update statement!
-				statement = db.getDataSource().getConnection().prepareStatement("UPDATE " + DB2Schema
+				statement = con.prepareStatement("UPDATE " + DB2Schema
 						+ ".REGISTERED_AT SET UNREGISTRATION_DATE=? WHERE RUNNING_AT=? AND UNREGISTRATION_DATE IS NULL");
 				statement.setString(1, timestamp);
 				statement.setString(2, nodeId);
@@ -531,7 +531,7 @@ public class DatabaseInsertStatement {
 	 * @throws Exception if the given information was not correct or sufficient for the desired table entry
 	 * 
 	 */
-	private static PreparedStatement returnDB2NodeStatement(SQLDatabase db,
+	private static PreparedStatement returnDB2NodeStatement(Connection con,
 			MonitoringMessageWithEncryptedAgents monitoringMessage, String DB2Schema) throws Exception {
 		PreparedStatement statement = null;
 		try {
@@ -543,13 +543,12 @@ public class DatabaseInsertStatement {
 				int startingLocationPosition = monitoringMessage.getSourceNode().lastIndexOf("/") + 1;
 				String nodeLocation = monitoringMessage.getSourceNode().substring(startingLocationPosition);
 				// Duplicate can happen because of new node notices
-				statement = db.getDataSource().getConnection()
-						.prepareStatement("MERGE INTO " + DB2Schema + ".NODE node1 USING (VALUES('" + nodeId + "', '"
-								+ nodeLocation + "')) AS node2(NODE_ID,NODE_LOCATION) "
-								+ "ON node1.NODE_ID=node2.NODE_ID WHEN MATCHED THEN "
-								+ "UPDATE SET node1.NODE_LOCATION = node2.NODE_LOCATION "
-								+ "WHEN NOT MATCHED THEN INSERT (NODE_ID, NODE_LOCATION) VALUES('" + nodeId + "', '"
-								+ nodeLocation + "')");
+				statement = con.prepareStatement("MERGE INTO " + DB2Schema + ".NODE node1 USING (VALUES('" + nodeId
+						+ "', '" + nodeLocation + "')) AS node2(NODE_ID,NODE_LOCATION) "
+						+ "ON node1.NODE_ID=node2.NODE_ID WHEN MATCHED THEN "
+						+ "UPDATE SET node1.NODE_LOCATION = node2.NODE_LOCATION "
+						+ "WHEN NOT MATCHED THEN INSERT (NODE_ID, NODE_LOCATION) VALUES('" + nodeId + "', '"
+						+ nodeLocation + "')");
 			} else {
 				throw new Exception("Node persistence only at new node notice or node creation events!");
 			}

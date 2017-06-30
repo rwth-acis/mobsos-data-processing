@@ -1,5 +1,6 @@
 package i5.las2peer.services.mobsos.dataProcessing;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,7 +76,7 @@ public class MonitoringDataProcessingService extends Service {
 			System.out.println("Monitoring: I only take messages from my own agent!");
 			return false;
 		}
-		System.out.println("Monitoring: Got a monitoring message!");
+		System.out.println("Monitoring: Got " + messages.length + " monitoring messages!");
 		return processMessages(messages);
 	}
 
@@ -91,32 +92,32 @@ public class MonitoringDataProcessingService extends Service {
 	 */
 	private boolean processMessages(MonitoringMessage[] messages) {
 		boolean returnStatement = true;
-
+		int counter = 0;
 		for (MonitoringMessage message : messages) {
 			// Happens when a node has sent its last messages
 			if (message == null) {
-				return returnStatement;
+				counter++;
 			}
 
 			// Add node to database (running means we got an id representation)
 			else if ((message.getEvent() == Event.NODE_STATUS_CHANGE && message.getRemarks().equals("RUNNING"))) {
 				returnStatement = persistMessage(message, "NODE");
 				if (!returnStatement)
-					return returnStatement;
+					counter++;
 
 				returnStatement = persistMessage(message, "MESSAGE");
 				if (!returnStatement)
-					return returnStatement;
+					counter++;
 			}
 
 			// Add unregister date to all registered agents at this node
 			else if (message.getEvent() == Event.NODE_STATUS_CHANGE && message.getRemarks().equals("CLOSING")) {
 				returnStatement = persistMessage(message, "REGISTERED_AT");
 				if (!returnStatement)
-					return returnStatement;
+					counter++;
 				returnStatement = persistMessage(message, "MESSAGE");
 				if (!returnStatement)
-					return returnStatement;
+					counter++;
 			}
 
 			// Add service to monitored service list and add service, service agent, 'registered at' and message to
@@ -125,19 +126,19 @@ public class MonitoringDataProcessingService extends Service {
 				monitoredServices.put(message.getSourceAgentId(), message.getRemarks());
 				returnStatement = persistMessage(message, "AGENT");
 				if (!returnStatement)
-					return returnStatement;
+					counter++;
 
 				returnStatement = persistMessage(message, "SERVICE");
 				if (!returnStatement)
-					return returnStatement;
+					counter++;
 
 				returnStatement = persistMessage(message, "REGISTERED_AT");
 				if (!returnStatement)
-					return returnStatement;
+					counter++;
 
 				returnStatement = persistMessage(message, "MESSAGE");
 				if (!returnStatement)
-					return returnStatement;
+					counter++;
 			}
 
 			// Add agent to database
@@ -145,15 +146,15 @@ public class MonitoringDataProcessingService extends Service {
 					&& !message.getRemarks().equals("ServiceInfoAgent")) {
 				returnStatement = persistMessage(message, "AGENT");
 				if (!returnStatement)
-					return returnStatement;
+					counter++;
 
 				returnStatement = persistMessage(message, "REGISTERED_AT");
 				if (!returnStatement)
-					return returnStatement;
+					counter++;
 
 				returnStatement = persistMessage(message, "MESSAGE");
 				if (!returnStatement)
-					return returnStatement;
+					counter++;
 			}
 
 			// Connector requests are only logged for monitored services or if they
@@ -162,7 +163,7 @@ public class MonitoringDataProcessingService extends Service {
 				if (message.getSourceAgentId() == null || monitoredServices.containsKey(message.getSourceAgentId())) {
 					returnStatement = persistMessage(message, "MESSAGE");
 					if (!returnStatement)
-						return returnStatement;
+						counter++;
 				}
 			}
 
@@ -172,30 +173,29 @@ public class MonitoringDataProcessingService extends Service {
 				if (message.getEvent() == Event.SERVICE_SHUTDOWN) {
 					returnStatement = persistMessage(message, "REGISTERED_AT");
 					if (!returnStatement)
-						return returnStatement;
+						counter++;
 				}
 				returnStatement = persistMessage(message, "MESSAGE");
 				if (!returnStatement)
-					return returnStatement;
+					counter++;
 			} else if (message.getEvent() == Event.AGENT_REMOVED) {
 				returnStatement = persistMessage(message, "REGISTERED_AT");
 				if (!returnStatement)
-					return returnStatement;
+					counter++;
 
 				returnStatement = persistMessage(message, "MESSAGE");
 				if (!returnStatement)
-					return returnStatement;
+					counter++;
 			}
 			// Just log the message
 			else {
 				returnStatement = persistMessage(message, "MESSAGE");
 				if (!returnStatement)
-					return returnStatement;
+					counter++;
 			}
-
 		}
+		System.out.println((messages.length - counter) + "/" + messages.length + " messages were handled.");
 		return returnStatement;
-
 	}
 
 	/**
@@ -213,13 +213,17 @@ public class MonitoringDataProcessingService extends Service {
 	private boolean persistMessage(MonitoringMessage message, String table) {
 		boolean returnStatement = false;
 		try {
-			PreparedStatement insertStatement = DatabaseInsertStatement.returnInsertStatement(database, message,
+			Connection con = database.getDataSource().getConnection();
+			PreparedStatement insertStatement = DatabaseInsertStatement.returnInsertStatement(con, message,
 					database.getJdbcInfo(), DB2Schema, table, hashRemarks);
 			int result = insertStatement.executeUpdate();
-			if (result >= 0)
+			if (result >= 0) {
 				returnStatement = true;
+			}
 			insertStatement.close();
+			con.close();
 		} catch (Exception e) {
+			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
 		return returnStatement;
