@@ -1,6 +1,8 @@
 package i5.las2peer.services.mobsos.dataProcessing;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import i5.las2peer.logging.NodeObserver.Event;
 import i5.las2peer.logging.monitoring.MonitoringMessage;
@@ -45,9 +47,18 @@ public class MonitoringMessageWithEncryptedAgents {
 		// Custom service messages
 		if (Math.abs(this.getEvent().getCode()) >= 7500 && (Math.abs(this.getEvent().getCode()) < 7600)
 				&& hashRemarks) {
-			this.remarks = DigestUtils.md5Hex((monitoringMessage.getRemarks()));
+			this.remarks = "{\"msg\":\"" + DigestUtils.md5Hex((monitoringMessage.getRemarks())) + "\"}";
 		} else {
-			this.remarks = monitoringMessage.getRemarks();
+			if (monitoringMessage.getRemarks() == null) {
+				this.remarks = "{}";
+			} else {
+				if (isJSONValid(monitoringMessage.getRemarks())) {
+					this.remarks = monitoringMessage.getRemarks();
+				} else {
+					this.remarks = "{\"msg\":\"" + monitoringMessage.getRemarks() + "\"}";
+				}
+			}
+
 		}
 	}
 
@@ -77,6 +88,16 @@ public class MonitoringMessageWithEncryptedAgents {
 
 	public String getRemarks() {
 		return remarks;
+	}
+
+	private boolean isJSONValid(String jsonString) {
+		try {
+			JSONParser parser = new JSONParser();
+			parser.parse(jsonString);
+		} catch (ParseException ex) {
+			return false;
+		}
+		return true;
 	}
 
 }
