@@ -1,6 +1,6 @@
 MobSOS Data-Processing
 ===========================================
-[![Build Status](https://travis-ci.org/rwth-acis/mobsos-data-processing.svg?branch=master)](https://travis-ci.org/rwth-acis/mobsos-data-processing)
+[![Build Status](https://travis-ci.org/rwth-acis/mobsos-data-processing.svg?branch=master)](https://travis-ci.org/rwth-acis/mobsos-data-processing) [![codecov](https://codecov.io/gh/rwth-acis/mobsos-data-processing/branch/master/graph/badge.svg)](https://codecov.io/gh/rwth-acis/mobsos-data-processing) [![Join the chat at https://gitter.im/rwth-acis/mobsos](https://badges.gitter.im/rwth-acis/mobsos.svg)](https://gitter.im/rwth-acis/mobsos?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This service is part of the MobSOS monitoring concept and processes incoming monitoring data. 
 
