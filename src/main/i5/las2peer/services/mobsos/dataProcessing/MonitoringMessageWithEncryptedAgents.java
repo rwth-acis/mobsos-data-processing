@@ -26,6 +26,7 @@ public class MonitoringMessageWithEncryptedAgents {
 	private String destinationNode;
 	private String destinationAgentId = null;
 	private String remarks;
+	private String jsonRemarks;
 
 	/**
 	 * 
@@ -50,12 +51,14 @@ public class MonitoringMessageWithEncryptedAgents {
 			this.remarks = "{\"msg\":\"" + DigestUtils.md5Hex((monitoringMessage.getRemarks())) + "\"}";
 		} else {
 			if (monitoringMessage.getRemarks() == null) {
-				this.remarks = "{}";
+				this.remarks = "";
+				this.jsonRemarks = "{}";
 			} else {
+				this.remarks = monitoringMessage.getRemarks();
 				if (isJSONValid(monitoringMessage.getRemarks())) {
-					this.remarks = monitoringMessage.getRemarks();
+					this.jsonRemarks = monitoringMessage.getRemarks();
 				} else {
-					this.remarks = "{\"msg\":\"" + monitoringMessage.getRemarks() + "\"}";
+					this.jsonRemarks = "{\"msg\":\"" + monitoringMessage.getRemarks() + "\"}";
 				}
 			}
 
@@ -88,6 +91,10 @@ public class MonitoringMessageWithEncryptedAgents {
 
 	public String getRemarks() {
 		return remarks;
+	}
+
+	public String getJsonRemarks() {
+		return jsonRemarks;
 	}
 
 	private boolean isJSONValid(String jsonString) {

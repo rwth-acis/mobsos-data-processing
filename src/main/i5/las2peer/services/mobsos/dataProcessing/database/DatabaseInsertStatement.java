@@ -139,7 +139,7 @@ public class DatabaseInsertStatement {
 				statement.setString(6, "");
 			}
 			if (message.getRemarks() != null) {
-				statement.setString(7, message.getRemarks()); // REMARKS
+				statement.setString(7, message.getJsonRemarks()); // REMARKS AS JSON
 			} else {
 				statement.setString(7, "");
 			}
