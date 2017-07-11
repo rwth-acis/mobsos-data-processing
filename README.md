@@ -1,14 +1,17 @@
 MobSOS Data-Processing
 ===========================================
-[![Build Status](https://travis-ci.org/rwth-acis/mobsos-data-processing.svg?branch=master)](https://travis-ci.org/rwth-acis/mobsos-data-processing)
+[![Build Status](https://travis-ci.org/rwth-acis/mobsos-data-processing.svg?branch=master)](https://travis-ci.org/rwth-acis/mobsos-data-processing) [![codecov](https://codecov.io/gh/rwth-acis/mobsos-data-processing/branch/master/graph/badge.svg)](https://codecov.io/gh/rwth-acis/mobsos-data-processing) [![Join the chat at https://gitter.im/rwth-acis/mobsos](https://badges.gitter.im/rwth-acis/mobsos.svg)](https://gitter.im/rwth-acis/mobsos?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This service is part of the MobSOS monitoring concept and processes incoming monitoring data. 
 
 Database
 --------
 Set up the database. You can find different sql files in the [bin](bin) folder:
-* [MySQL](bin/create_database_MySQL.sql) 
-* [DB2](bin/create_database_DB2.sql)
+
+| ID  | Type |
+| ------------- | ------------- |
+| 1  | [DB2](bin/create_database_DB2.sql)  |
+| 2  | [MySQL](bin/create_database_MySQL.sql)  |
 
 After that configure the [property](etc/i5.las2peer.services.mobsos.dataProcessing.MonitoringDataProcessingService.properties) file of the service and enter your database credentials.
 
