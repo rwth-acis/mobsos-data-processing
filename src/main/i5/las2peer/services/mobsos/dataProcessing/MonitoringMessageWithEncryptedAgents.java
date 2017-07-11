@@ -61,7 +61,6 @@ public class MonitoringMessageWithEncryptedAgents {
 					this.jsonRemarks = "{\"msg\":\"" + monitoringMessage.getRemarks() + "\"}";
 				}
 			}
-
 		}
 	}
 
