@@ -47,7 +47,8 @@ public class SQLDatabase {
 		this.database = database;
 
 		BasicDataSource ds = new BasicDataSource();
-		String urlPrefix = jdbcInfo.getURLPrefix(this.host, this.database, this.port) + "?autoReconnect=true";
+		String urlPrefix = jdbcInfo.getURLPrefix(this.host, this.database, this.port)
+				+ "?autoReconnect=true&useSSL=false&serverTimezone=UTC";
 		ds.setUrl(urlPrefix);
 		ds.setUsername(username);
 		ds.setPassword(password);
