@@ -1,6 +1,7 @@
 package i5.las2peer.services.mobsos.dataProcessing;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
@@ -58,7 +59,7 @@ public class MonitoringMessageWithEncryptedAgents {
 				if (isJSONValid(monitoringMessage.getRemarks())) {
 					this.jsonRemarks = monitoringMessage.getRemarks();
 				} else {
-					this.jsonRemarks = "{\"msg\":\"" + monitoringMessage.getRemarks() + "\"}";
+					this.jsonRemarks = "{\"msg\":\"" + JSONObject.escape(monitoringMessage.getRemarks()) + "\"}";
 				}
 			}
 		}
