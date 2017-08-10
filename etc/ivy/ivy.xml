@@ -10,10 +10,10 @@
 	</publications>
     <dependencies>
         <dependency org="i5" name="las2peer" rev="0.6.7" changing="true" conf="platform->*" />
-        <dependency org="i5" name="las2peer-http-connector" rev="0.6.7" changing="true" conf="platform->*" />
         
         <dependency org="com.googlecode.json-simple" name="json-simple" rev="1.1" conf="platform->*" />
         <dependency org="org.apache.commons" name="commons-dbcp2" rev="2.1.1" conf="platform->*"/>
+        <dependency org="commons-codec" name="commons-codec" rev="1.10" conf="platform->*"/>
 		<dependency org="mysql" name="mysql-connector-java" rev="6.0.6" conf="platform->*"/>
 		<dependency org="IBMJDBC" name="db2jcc" rev="0" conf="platform->*"/>
 		<dependency org="IBMJDBC" name="db2jcc_Licence" rev="0" conf="platform->*"/>
