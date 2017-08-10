@@ -6,7 +6,7 @@ This service is part of the MobSOS monitoring concept and processes incoming mon
 
 Database
 --------
-Set up the database. You can find different sql files in the [bin](bin) folder:
+Set up the database. You can find different sql files in the [etc](etc) folder:
 
 | ID  | Type |
 | ------------- | ------------- |
