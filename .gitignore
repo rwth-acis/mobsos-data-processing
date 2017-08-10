@@ -7,5 +7,6 @@
 /etc/ivy/ivy.jar
 /service
 /bin
+/bin/*
 .DS_Store
 .DS_Store*
