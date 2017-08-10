@@ -10,8 +10,8 @@ Set up the database. You can find different sql files in the [bin](bin) folder:
 
 | ID  | Type |
 | ------------- | ------------- |
-| 1  | [DB2](bin/create_database_DB2.sql)  |
-| 2  | [MySQL](bin/create_database_MySQL.sql)  |
+| 1  | [DB2](etc/create_database_DB2.sql)  |
+| 2  | [MySQL](etc/create_database_MySQL.sql)  |
 
 After that configure the [property](etc/i5.las2peer.services.mobsos.dataProcessing.MonitoringDataProcessingService.properties) file of the service and enter your database credentials.
 
