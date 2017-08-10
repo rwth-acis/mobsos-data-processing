@@ -117,7 +117,7 @@ public class DatabaseInsertStatement {
 					.prepareStatement("INSERT INTO MESSAGE (`EVENT`, `TIME_STAMP`, `SOURCE_NODE`, `SOURCE_AGENT`, "
 							+ "`DESTINATION_NODE`, `DESTINATION_AGENT`, `REMARKS`) VALUES (?,?,?,?,?,?,?);");
 			statement.setString(1, message.getEvent().toString()); // EVENT
-			statement.setLong(2, message.getTimestamp()); // TIME_STAMP
+			statement.setString(2, new Timestamp(message.getTimestamp()).toString()); // TIME_STAMP
 			if (message.getSourceNode() != null) {
 				statement.setString(3, message.getSourceNode().substring(0, 12)); // SOURCE_NODE
 			} else {
