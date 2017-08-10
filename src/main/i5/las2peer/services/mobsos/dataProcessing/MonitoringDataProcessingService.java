@@ -51,7 +51,6 @@ public class MonitoringDataProcessingService extends Service {
 	public MonitoringDataProcessingService() {
 		setFieldValues(); // This sets the values of the configuration file
 		this.databaseType = SQLDatabaseType.getSQLDatabaseType(databaseTypeInt);
-		System.out.println(databaseTypeInt);
 		this.database = new SQLDatabase(this.databaseType, this.databaseUser, this.databasePassword, this.databaseName,
 				this.databaseHost, this.databasePort);
 	}

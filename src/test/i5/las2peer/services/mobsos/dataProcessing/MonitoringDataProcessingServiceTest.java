@@ -2,34 +2,30 @@ package i5.las2peer.services.mobsos.dataProcessing;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import i5.las2peer.httpConnector.HttpConnector;
-import i5.las2peer.httpConnector.client.Client;
-import i5.las2peer.p2p.LocalNode;
-import i5.las2peer.p2p.ServiceNameVersion;
-import i5.las2peer.security.ServiceAgent;
-import i5.las2peer.security.UserAgent;
-import i5.las2peer.services.mobsos.dataProcessing.MonitoringDataProcessingService;
-import i5.las2peer.testing.MockAgentFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.Serializable;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import i5.las2peer.logging.NodeObserver.Event;
+import i5.las2peer.logging.monitoring.MonitoringMessage;
+import i5.las2peer.p2p.LocalNode;
+import i5.las2peer.p2p.ServiceNameVersion;
+import i5.las2peer.security.ServiceAgent;
+import i5.las2peer.security.UserAgent;
+import i5.las2peer.testing.MockAgentFactory;
+
 public class MonitoringDataProcessingServiceTest {
 
-	private static final String HTTP_ADDRESS = "localhost";
-	private static final int HTTP_PORT = 8080;
-
 	private LocalNode node;
-	private HttpConnector connector;
-	private ByteArrayOutputStream logStream;
 	private UserAgent adam = null;
+	private ServiceAgent testService = null;
 
 	private static final String adamsPass = "adamspass";
-	private static final ServiceNameVersion testServiceClass = new ServiceNameVersion(MonitoringDataProcessingService.class.getCanonicalName(),"0.1");
+	private static final ServiceNameVersion testServiceClass = new ServiceNameVersion(
+			MonitoringDataProcessingService.class.getCanonicalName(), "0.1");
 
 	@Before
 	public void startServer() throws Exception {
@@ -39,60 +35,38 @@ public class MonitoringDataProcessingServiceTest {
 		adam = MockAgentFactory.getAdam();
 		adam.unlockPrivateKey(adamsPass);
 		node.storeAgent(adam);
-		
+
 		node.launch();
 
-		ServiceAgent testService = ServiceAgent.createServiceAgent(
-				testServiceClass, "a pass");
+		testService = ServiceAgent.createServiceAgent(testServiceClass, "a pass");
 		testService.unlockPrivateKey("a pass");
 
 		node.registerReceiver(testService);
-
-		// start connector
-		logStream = new ByteArrayOutputStream();
-		connector = new HttpConnector();
-		connector.setPort(HTTP_PORT);
-		connector.setSocketTimeout(10000);
-		connector.setLogStream(new PrintStream(logStream));
-		connector.start(node);
 	}
 
 	@After
-	public void shutDownServer() throws Exception {
-		connector.stop();
-		node.shutDown();
-
-		connector = null;
-		node = null;
-
-		LocalNode.reset();
-
-		System.out.println("Connector-Log:");
-		System.out.println("--------------");
-
-		System.out.println(logStream.toString());
+	public void stopNetwork() {
+		try {
+			System.out.println("stopping test network...");
+			node.shutDown();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Test
 	public void testDefaultStartup() {
-		Client c = new Client(HTTP_ADDRESS, HTTP_PORT, adam.getLoginName(), adamsPass);
-
 		try {
-			// Login as Adam
-			c.connect();
 
-			Object result = c.invoke(testServiceClass.getName(), "getReceivingAgentId", "Just a Test");
+			Object result = node.invoke(testService, new ServiceNameVersion(testServiceClass.getName(), "0.1"),
+					"getReceivingAgentId", new Serializable[] { "Test message." });
 			assertTrue(result instanceof Long);
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail("Exception: " + e);
-		}
-
-		try {
-
-			// and logout
-			c.disconnect();
+			MonitoringMessage[] m = {
+					new MonitoringMessage(null, Event.NODE_STATUS_CHANGE, "1", (long) 1, "2", (long) 2, "{}") };
+			Object result2 = node.invoke(testService, new ServiceNameVersion(testServiceClass.getName(), "0.1"),
+					"getMessages", new Serializable[] { m });
+			assertTrue(result2 instanceof Boolean);
 
 		} catch (Exception e) {
 			e.printStackTrace();
