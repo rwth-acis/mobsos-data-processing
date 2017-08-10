@@ -13,6 +13,7 @@ import i5.las2peer.logging.NodeObserver.Event;
 import i5.las2peer.logging.monitoring.MonitoringMessage;
 import i5.las2peer.p2p.LocalNode;
 import i5.las2peer.p2p.ServiceNameVersion;
+import i5.las2peer.security.MonitoringAgent;
 import i5.las2peer.security.ServiceAgent;
 import i5.las2peer.security.UserAgent;
 import i5.las2peer.testing.MockAgentFactory;
@@ -58,14 +59,14 @@ public class MonitoringDataProcessingServiceTest {
 	public void testDefaultStartup() {
 		try {
 
-			Object result = node.invoke(testService, new ServiceNameVersion(testServiceClass.getName(), "0.1"),
-					"getReceivingAgentId", new Serializable[] { "Test message." });
+			Object result = node.invoke(testService, testServiceClass, "getReceivingAgentId",
+					new Serializable[] { "Test message." });
 			assertTrue(result instanceof Long);
-
-			MonitoringMessage[] m = {
-					new MonitoringMessage(null, Event.NODE_STATUS_CHANGE, "1", (long) 1, "2", (long) 2, "{}") };
-			Object result2 = node.invoke(testService, new ServiceNameVersion(testServiceClass.getName(), "0.1"),
-					"getMessages", new Serializable[] { m });
+			MonitoringAgent mAgent = (MonitoringAgent) node.getAgent((Long) result);
+			mAgent.unlockPrivateKey("ProcessingAgentPass");
+			MonitoringMessage[] m = { new MonitoringMessage((long) 1376750476, Event.NODE_STATUS_CHANGE,
+					"1234567891011", (long) 1, "1234567891022", (long) 2, "{}") };
+			Object result2 = node.invoke(mAgent, testServiceClass, "getMessages", new Serializable[] { m });
 			assertTrue(result2 instanceof Boolean);
 
 		} catch (Exception e) {
