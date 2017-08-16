@@ -1,5 +1,6 @@
 package i5.las2peer.services.mobsos.dataProcessing;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -16,6 +17,7 @@ import i5.las2peer.p2p.ServiceNameVersion;
 import i5.las2peer.security.MonitoringAgent;
 import i5.las2peer.security.ServiceAgent;
 import i5.las2peer.security.UserAgent;
+import i5.las2peer.services.mobsos.dataProcessing.database.SQLDatabaseType;
 import i5.las2peer.testing.MockAgentFactory;
 
 public class MonitoringDataProcessingServiceTest {
@@ -58,6 +60,12 @@ public class MonitoringDataProcessingServiceTest {
 	@Test
 	public void testDefaultStartup() {
 		try {
+			SQLDatabaseType t0 = SQLDatabaseType.getSQLDatabaseType(0);
+			assert (t0.getDriverName() == null);
+			assert (t0.getURLPrefix("", "", 0) == null);
+			SQLDatabaseType t1 = SQLDatabaseType.getSQLDatabaseType(1);
+			assertEquals(t1.getDriverName(), "com.ibm.db2.jcc.DB2Driver");
+			assertEquals(t1.getURLPrefix("", "", 0), "jdbc:db2://:0/");
 			MonitoringMessage m1 = new MonitoringMessage((long) 1376750476, Event.NODE_STATUS_CHANGE, "1234567891011",
 					(long) 1, "1234567891022", (long) 2, "{}");
 			MonitoringMessage m2 = new MonitoringMessage((long) 1376750476, Event.NODE_STATUS_CHANGE, "1234567891011",
