@@ -5,7 +5,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import i5.las2peer.logging.NodeObserver.Event;
+import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.logging.monitoring.MonitoringMessage;
 
 /**
@@ -21,7 +21,7 @@ import i5.las2peer.logging.monitoring.MonitoringMessage;
 public class MonitoringMessageWithEncryptedAgents {
 
 	private Long timestamp;
-	private Event event;
+	private MonitoringEvent event;
 	private String sourceNode;
 	private String sourceAgentId = null;
 	private String destinationNode;
@@ -69,7 +69,7 @@ public class MonitoringMessageWithEncryptedAgents {
 		return timestamp;
 	}
 
-	public Event getEvent() {
+	public MonitoringEvent getEvent() {
 		return event;
 	}
 

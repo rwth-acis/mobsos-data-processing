@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 
-import i5.las2peer.logging.NodeObserver.Event;
+import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.logging.monitoring.MonitoringMessage;
 import i5.las2peer.services.mobsos.dataProcessing.MonitoringMessageWithEncryptedAgents;
 
@@ -175,9 +175,9 @@ public class DatabaseInsertStatement {
 				throw new Exception("Missing information for persisting agent entity!");
 
 			String agentType = null;
-			if (monitoringMessage.getEvent() == Event.SERVICE_ADD_TO_MONITORING)
+			if (monitoringMessage.getEvent() == MonitoringEvent.SERVICE_ADD_TO_MONITORING)
 				agentType = "SERVICE";
-			else if (monitoringMessage.getEvent() == Event.AGENT_REGISTERED) {
+			else if (monitoringMessage.getEvent() == MonitoringEvent.AGENT_REGISTERED) {
 				if (monitoringMessage.getRemarks().equals("ServiceAgent")) {
 					throw new Exception("ServiceAgents are only persisted when added to monitoring!");
 				} else if (monitoringMessage.getRemarks().contains("UserAgent")) {
@@ -259,7 +259,8 @@ public class DatabaseInsertStatement {
 			String timestamp = new Timestamp(message.getTimestamp()).toString();
 			String nodeId = message.getSourceNode().substring(0, 12);
 
-			if (message.getEvent() == Event.AGENT_REGISTERED || message.getEvent() == Event.SERVICE_ADD_TO_MONITORING) {
+			if (message.getEvent() == MonitoringEvent.AGENT_REGISTERED
+					|| message.getEvent() == MonitoringEvent.SERVICE_ADD_TO_MONITORING) {
 				if (message.getSourceAgentId() == null)
 					throw new Exception("Missing information for persisting 'registered at' entity!");
 				statement = con.prepareStatement(
@@ -267,7 +268,8 @@ public class DatabaseInsertStatement {
 				statement.setString(1, timestamp);
 				statement.setString(2, message.getSourceAgentId());
 				statement.setString(3, nodeId);
-			} else if (message.getEvent() == Event.AGENT_REMOVED || message.getEvent() == Event.SERVICE_SHUTDOWN) {
+			} else if (message.getEvent() == MonitoringEvent.AGENT_REMOVED
+					|| message.getEvent() == MonitoringEvent.SERVICE_SHUTDOWN) {
 				statement = con.prepareStatement(
 						"UPDATE REGISTERED_AT SET UNREGISTRATION_DATE=? WHERE RUNNING_AT=? AND AGENT_ID=? AND UNREGISTRATION_DATE IS NULL;");
 				statement.setString(1, timestamp);
@@ -304,7 +306,7 @@ public class DatabaseInsertStatement {
 		try {
 			statement = con.prepareStatement(
 					"INSERT INTO NODE(NODE_ID, NODE_LOCATION) VALUES(?,?) ON DUPLICATE KEY UPDATE NODE_ID = NODE_ID;");
-			if (monitoringMessage.getEvent() == Event.NODE_STATUS_CHANGE) {
+			if (monitoringMessage.getEvent() == MonitoringEvent.NODE_STATUS_CHANGE) {
 				if (monitoringMessage.getSourceNode() == null)
 					throw new Exception("Missing information for persisting node entity!");
 				String nodeId = monitoringMessage.getSourceNode().substring(0, 12);
@@ -398,9 +400,9 @@ public class DatabaseInsertStatement {
 				throw new Exception("Missing information for persisting agent entity!");
 
 			String agentType = null;
-			if (monitoringMessage.getEvent() == Event.SERVICE_ADD_TO_MONITORING)
+			if (monitoringMessage.getEvent() == MonitoringEvent.SERVICE_ADD_TO_MONITORING)
 				agentType = "SERVICE";
-			else if (monitoringMessage.getEvent() == Event.AGENT_REGISTERED) {
+			else if (monitoringMessage.getEvent() == MonitoringEvent.AGENT_REGISTERED) {
 				if (monitoringMessage.getRemarks().equals("ServiceAgent")) {
 					throw new Exception("ServiceAgents are only persisted when added to monitoring!");
 				} else if (monitoringMessage.getRemarks().equals("UserAgent")) {
@@ -491,7 +493,8 @@ public class DatabaseInsertStatement {
 			String timestamp = new Timestamp(message.getTimestamp()).toString();
 			String nodeId = message.getSourceNode().substring(0, 12);
 
-			if (message.getEvent() == Event.AGENT_REGISTERED || message.getEvent() == Event.SERVICE_ADD_TO_MONITORING) {
+			if (message.getEvent() == MonitoringEvent.AGENT_REGISTERED
+					|| message.getEvent() == MonitoringEvent.SERVICE_ADD_TO_MONITORING) {
 				if (message.getSourceAgentId() == null)
 					throw new Exception("Missing information for persisting 'registered at' entity!");
 				statement = con.prepareStatement("INSERT INTO " + DB2Schema
@@ -499,7 +502,8 @@ public class DatabaseInsertStatement {
 				statement.setString(1, timestamp);
 				statement.setString(2, message.getSourceAgentId());
 				statement.setString(3, nodeId);
-			} else if (message.getEvent() == Event.AGENT_REMOVED || message.getEvent() == Event.SERVICE_SHUTDOWN) {
+			} else if (message.getEvent() == MonitoringEvent.AGENT_REMOVED
+					|| message.getEvent() == MonitoringEvent.SERVICE_SHUTDOWN) {
 				statement = con.prepareStatement("UPDATE " + DB2Schema
 						+ ".REGISTERED_AT SET UNREGISTRATION_DATE=? WHERE RUNNING_AT=? AND AGENT_ID=? AND UNREGISTRATION_DATE IS NULL");
 				statement.setString(1, timestamp);
@@ -536,7 +540,7 @@ public class DatabaseInsertStatement {
 		PreparedStatement statement = null;
 		try {
 
-			if (monitoringMessage.getEvent() == Event.NODE_STATUS_CHANGE) {
+			if (monitoringMessage.getEvent() == MonitoringEvent.NODE_STATUS_CHANGE) {
 				if (monitoringMessage.getSourceNode() == null)
 					throw new Exception("Missing information for persisting node entity!");
 				String nodeId = monitoringMessage.getSourceNode().substring(0, 12);
