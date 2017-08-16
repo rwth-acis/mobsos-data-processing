@@ -80,7 +80,11 @@ public class MonitoringDataProcessingServiceTest {
 					"1234567891011", (long) 1, "1234567891022", (long) 2, "{}");
 			MonitoringMessage m7 = new MonitoringMessage((long) 1376750476, Event.SERVICE_CUSTOM_MESSAGE_1,
 					"1234567891011", (long) 1, "1234567891022", (long) 2, "{}");
-			MonitoringMessage[] m = { m1, m2, m3, m4, m5, m6, m7 };
+			MonitoringMessage m8 = new MonitoringMessage((long) 1376750476, Event.SERVICE_SHUTDOWN, "1234567891011",
+					(long) 1, "1234567891022", (long) 2, "{}");
+			MonitoringMessage m9 = new MonitoringMessage((long) 1376750476, Event.AGENT_REMOVED, "1234567891011",
+					(long) 1, "1234567891022", (long) 2, "{}");
+			MonitoringMessage[] m = { m1, m2, m3, m4, m5, m6, m7, m8, m9 };
 
 			Object result2 = node.invoke(testService, testServiceClass, "getMessages", new Serializable[] { m });
 			assertTrue(result2 instanceof Boolean);
