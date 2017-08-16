@@ -64,10 +64,26 @@ public class MonitoringDataProcessingServiceTest {
 			assertTrue(result instanceof Long);
 			MonitoringAgent mAgent = (MonitoringAgent) node.getAgent((Long) result);
 			mAgent.unlockPrivateKey("ProcessingAgentPass");
-			MonitoringMessage[] m = { new MonitoringMessage((long) 1376750476, Event.NODE_STATUS_CHANGE,
-					"1234567891011", (long) 1, "1234567891022", (long) 2, "{}") };
+			MonitoringMessage m1 = new MonitoringMessage((long) 1376750476, Event.NODE_STATUS_CHANGE, "1234567891011",
+					(long) 1, "1234567891022", (long) 2, "{}");
+			MonitoringMessage m2 = new MonitoringMessage((long) 1376750476, Event.NODE_STATUS_CHANGE, "1234567891011",
+					(long) 1, "1234567891022", (long) 2, "{\"msg\": \"RUNNING\"}");
+			MonitoringMessage m3 = new MonitoringMessage((long) 1376750476, Event.NODE_STATUS_CHANGE, "1234567891011",
+					(long) 1, "1234567891022", (long) 2, "{\"msg\": \"CLOSING\"}");
+			MonitoringMessage m4 = new MonitoringMessage((long) 1376750476, Event.SERVICE_ADD_TO_MONITORING,
+					"1234567891011", (long) 1, "1234567891022", (long) 2, "{}");
+			MonitoringMessage m5 = new MonitoringMessage((long) 1376750476, Event.AGENT_REGISTERED, "1234567891011",
+					(long) 1, "1234567891022", (long) 2, "{\"msg\": \"UserAgent\"}");
+			MonitoringMessage m6 = new MonitoringMessage((long) 1376750476, Event.HTTP_CONNECTOR_REQUEST,
+					"1234567891011", (long) 1, "1234567891022", (long) 2, "{}");
+			MonitoringMessage m7 = new MonitoringMessage((long) 1376750476, Event.SERVICE_CUSTOM_MESSAGE_1,
+					"1234567891011", (long) 1, "1234567891022", (long) 2, "{}");
+			MonitoringMessage[] m = { m1, m2, m3, m4, m5, m6, m7 };
 			Object result2 = node.invoke(mAgent, testServiceClass, "getMessages", new Serializable[] { m });
 			assertTrue(result2 instanceof Boolean);
+			MonitoringMessage[] mm = new MonitoringMessage[2];
+			Object result3 = node.invoke(mAgent, testServiceClass, "getMessages", new Serializable[] { mm });
+			assertTrue(result3 instanceof Boolean);
 
 		} catch (Exception e) {
 			e.printStackTrace();
