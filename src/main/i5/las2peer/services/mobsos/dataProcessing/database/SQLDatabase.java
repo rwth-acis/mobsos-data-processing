@@ -75,6 +75,7 @@ public class SQLDatabase {
 	 * @throws SQLException problems inserting
 	 * 
 	 */
+	@Deprecated
 	public boolean store(String SQLStatment) throws SQLException {
 		// make sure one is connected to a database
 		if (!dataSource.getConnection().isValid(5000)) {
