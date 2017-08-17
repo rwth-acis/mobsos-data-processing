@@ -2,6 +2,7 @@ package i5.las2peer.services.mobsos.dataProcessing;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,6 +93,12 @@ public class MonitoringDataProcessingService extends Service {
 	 */
 	private boolean processMessages(MonitoringMessage[] messages) {
 		boolean returnStatement = true;
+		try {
+			database.getDataSource().getConnection();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			return false;
+		}
 		int counter = 0;
 		for (MonitoringMessage message : messages) {
 			// Happens when a node has sent its last messages
@@ -215,8 +222,14 @@ public class MonitoringDataProcessingService extends Service {
 	 */
 	private boolean persistMessage(MonitoringMessage message, String table) {
 		boolean returnStatement = false;
+		Connection con;
 		try {
-			Connection con = database.getDataSource().getConnection();
+			con = database.getDataSource().getConnection();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			return false;
+		}
+		try {
 			PreparedStatement insertStatement = DatabaseInsertStatement.returnInsertStatement(con, message,
 					database.getJdbcInfo(), DB2Schema, table, hashRemarks);
 			int result = insertStatement.executeUpdate();
@@ -226,7 +239,6 @@ public class MonitoringDataProcessingService extends Service {
 			insertStatement.close();
 			con.close();
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
 		return returnStatement;
