@@ -61,8 +61,7 @@ public class MonitoringDataProcessingServiceTest {
 	public void testDefaultStartup() {
 		try {
 			SQLDatabaseType t0 = SQLDatabaseType.getSQLDatabaseType(0);
-			assert (t0.getDriverName() == null);
-			assert (t0.getURLPrefix("", "", 0) == null);
+			assert (t0 == null);
 			SQLDatabaseType t1 = SQLDatabaseType.getSQLDatabaseType(1);
 			assertEquals(t1.getDriverName(), "com.ibm.db2.jcc.DB2Driver");
 			assertEquals(t1.getURLPrefix("", "", 0), "jdbc:db2://:0/");
