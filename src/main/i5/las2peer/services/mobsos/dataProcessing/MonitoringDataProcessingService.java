@@ -42,7 +42,7 @@ public class MonitoringDataProcessingService extends Service {
 	private String databasePassword;
 	private String DB2Schema; // Only needed if a DB2 database is used
 	private boolean hashRemarks;
-
+	private Connection con;
 	private SQLDatabase database; // The database instance to write to.
 
 	/**
@@ -55,6 +55,11 @@ public class MonitoringDataProcessingService extends Service {
 		this.databaseType = SQLDatabaseType.getSQLDatabaseType(databaseTypeInt);
 		this.database = new SQLDatabase(this.databaseType, this.databaseUser, this.databasePassword, this.databaseName,
 				this.databaseHost, this.databasePort);
+		try {
+			con = database.getDataSource().getConnection();
+		} catch (SQLException e) {
+			System.out.println("Failed to Connect");
+		}
 	}
 
 	/**
@@ -93,12 +98,6 @@ public class MonitoringDataProcessingService extends Service {
 	 */
 	private boolean processMessages(MonitoringMessage[] messages) {
 		boolean returnStatement = true;
-		try {
-			database.getDataSource().getConnection();
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-			return false;
-		}
 		int counter = 0;
 		for (MonitoringMessage message : messages) {
 			// Happens when a node has sent its last messages
@@ -222,11 +221,7 @@ public class MonitoringDataProcessingService extends Service {
 	 */
 	private boolean persistMessage(MonitoringMessage message, String table) {
 		boolean returnStatement = false;
-		Connection con;
-		try {
-			con = database.getDataSource().getConnection();
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+		if (con == null) {
 			return false;
 		}
 		try {
@@ -237,7 +232,6 @@ public class MonitoringDataProcessingService extends Service {
 				returnStatement = true;
 			}
 			insertStatement.close();
-			con.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
