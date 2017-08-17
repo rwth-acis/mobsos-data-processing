@@ -249,8 +249,7 @@ public class MonitoringDataProcessingService extends Service {
 				receivingAgent = MonitoringAgent.createMonitoringAgent(AGENT_PASS);
 				receivingAgent.unlock(AGENT_PASS);
 				Context.getCurrent().storeAgent(receivingAgent);
-				// TODO
-				// Context.getCurrent().registerReceiver(receivingAgent);
+				Context.getCurrent().registerReceiver(receivingAgent);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
