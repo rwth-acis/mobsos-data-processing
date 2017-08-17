@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -18,6 +19,7 @@ import i5.las2peer.persistency.SharedStorage.STORAGE_MODE;
 import i5.las2peer.security.MonitoringAgent;
 import i5.las2peer.security.ServiceAgentImpl;
 import i5.las2peer.security.UserAgentImpl;
+import i5.las2peer.services.mobsos.dataProcessing.database.SQLDatabase;
 import i5.las2peer.services.mobsos.dataProcessing.database.SQLDatabaseType;
 import i5.las2peer.testing.MockAgentFactory;
 import i5.las2peer.testing.TestSuite;
@@ -65,6 +67,14 @@ public class MonitoringDataProcessingServiceTest {
 			SQLDatabaseType t1 = SQLDatabaseType.getSQLDatabaseType(1);
 			assertEquals(t1.getDriverName(), "com.ibm.db2.jcc.DB2Driver");
 			assertEquals(t1.getURLPrefix("", "", 0), "jdbc:db2://:0/");
+			SQLDatabaseType t2 = SQLDatabaseType.getSQLDatabaseType(2);
+			SQLDatabase database = new SQLDatabase(t2, "root", "", "LAS2PEERMON", "127.0.0.1", 3306);
+			try {
+				database.getDataSource().getConnection();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				fail();
+			}
 			MonitoringMessage m1 = new MonitoringMessage((long) 1376750476, MonitoringEvent.NODE_STATUS_CHANGE,
 					"1234567891011", "1", "1234567891022", "2", "{}");
 			MonitoringMessage m2 = new MonitoringMessage((long) 1376750476, MonitoringEvent.NODE_STATUS_CHANGE,
