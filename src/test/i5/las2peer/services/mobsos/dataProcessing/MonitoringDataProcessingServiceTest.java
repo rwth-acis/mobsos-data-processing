@@ -97,10 +97,10 @@ public class MonitoringDataProcessingServiceTest {
 
 			Object result = node.invoke(testService, testServiceClass, "getReceivingAgentId",
 					new Serializable[] { "Test message." });
-			assertTrue(result instanceof Long);
+			assertTrue(result instanceof String);
 			result = node.invoke(testService, testServiceClass, "getReceivingAgentId",
 					new Serializable[] { "Test message2." });
-			assertTrue(result instanceof Long);
+			assertTrue(result instanceof String);
 			MonitoringAgent mAgent = (MonitoringAgent) node.getAgent((String) result);
 			mAgent.unlock("ProcessingAgentPass");
 
