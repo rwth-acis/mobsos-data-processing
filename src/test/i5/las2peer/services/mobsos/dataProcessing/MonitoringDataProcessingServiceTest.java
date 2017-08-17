@@ -89,6 +89,10 @@ public class MonitoringDataProcessingServiceTest {
 					"1234567891011", "1", "1234567891022", "2", "{}");
 			MonitoringMessage m7 = new MonitoringMessage((long) 1376750476, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_1,
 					"1234567891011", "1", "1234567891022", "2", "{}");
+			MonitoringMessage m8 = new MonitoringMessage((long) 1376750476, MonitoringEvent.SERVICE_SHUTDOWN,
+					"1234567891011", "1", "1234567891022", "2", "{}");
+			MonitoringMessage m9 = new MonitoringMessage((long) 1376750476, MonitoringEvent.AGENT_REMOVED,
+					"1234567891011", "1", "1234567891022", "2", "{}");
 			MonitoringMessage[] m = { m1, m2, m3, m4, m5, m6, m7 };
 
 			Object result2 = node.invoke(testService, testServiceClass, "getMessages", new Serializable[] { m });
@@ -112,6 +116,10 @@ public class MonitoringDataProcessingServiceTest {
 			assertTrue(result2 instanceof Boolean);
 			MonitoringMessage[] mm = new MonitoringMessage[2];
 			Object result3 = node.invoke(mAgent, testServiceClass, "getMessages", new Serializable[] { mm });
+			assertTrue(result3 instanceof Boolean);
+			mm[0] = m8;
+			mm[1] = m9;
+			result3 = node.invoke(mAgent, testServiceClass, "getMessages", new Serializable[] { mm });
 			assertTrue(result3 instanceof Boolean);
 
 		} catch (Exception e) {
