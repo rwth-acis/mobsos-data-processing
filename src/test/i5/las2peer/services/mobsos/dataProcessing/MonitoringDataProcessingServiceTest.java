@@ -142,7 +142,7 @@ public class MonitoringDataProcessingServiceTest {
 			MonitoringMessage ccm = new MonitoringMessage((long) 1376750476, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_1,
 					sNode, null, dNode, null, "1337");
 			// TODO
-			new MonitoringMessageWithEncryptedAgents(ccm, false);
+			new MonitoringMessageWithEncryptedAgents(ccm, true);
 
 			// unknown type
 			SQLDatabaseType t0 = SQLDatabaseType.getSQLDatabaseType(0);
