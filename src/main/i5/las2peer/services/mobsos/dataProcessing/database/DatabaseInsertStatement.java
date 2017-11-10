@@ -328,7 +328,7 @@ public class DatabaseInsertStatement {
 	 * 
 	 * Returns a DB2 statement for the message table.
 	 * 
-	 * @param monitoringMessage a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information
+	 * @param message a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information
 	 *            to be stored
 	 * @param DB2Schema the database schema
 	 * 
@@ -474,7 +474,7 @@ public class DatabaseInsertStatement {
 	 * 
 	 * Returns a DB2 statement for the "Registered At" table.
 	 * 
-	 * @param monitoringMessage a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information
+	 * @param message a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information
 	 *            to be stored
 	 * @param DB2Schema the database schema
 	 * 
