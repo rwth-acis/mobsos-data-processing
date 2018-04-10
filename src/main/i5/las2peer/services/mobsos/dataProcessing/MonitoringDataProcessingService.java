@@ -148,7 +148,6 @@ public class MonitoringDataProcessingService extends Service {
 				if (!returnStatement)
 					counter++;
 			}
-
 			// Add agent to database
 			else if (message.getEvent() == MonitoringEvent.AGENT_REGISTERED
 					&& !message.getRemarks().equals("ServiceAgent")
