@@ -45,6 +45,8 @@ public class MonitoringDataProcessingService extends Service {
 	private Connection con;
 	private SQLDatabase database; // The database instance to write to.
 
+	private int messageCount;
+
 	/**
 	 * 
 	 * Constructor of the Service. Loads the database values from a property file and tries to connect to the database.
@@ -82,7 +84,12 @@ public class MonitoringDataProcessingService extends Service {
 			System.out.println("Monitoring: I only take messages from my own agent!");
 			return false;
 		}
-		System.out.println("Monitoring: Got " + messages.length + " monitoring messages!");
+		messageCount = 0;
+		for (int i = 0; i < messages.length; ++i) {
+			if (messages[i] != null)
+				messageCount++;
+		}
+		System.out.println("Monitoring: Got " + messageCount + " monitoring messages!");
 		return processMessages(messages);
 	}
 
@@ -202,7 +209,7 @@ public class MonitoringDataProcessingService extends Service {
 					counter++;
 			}
 		}
-		System.out.println((messages.length - counter) + "/" + messages.length + " messages were handled.");
+		System.out.println((messages.length - counter) + "/" + messageCount + " messages were handled.");
 		return returnStatement;
 	}
 
