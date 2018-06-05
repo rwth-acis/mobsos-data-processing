@@ -1,21 +1,40 @@
 package i5.las2peer.services.mobsos.dataProcessing;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import i5.las2peer.api.Context;
 import i5.las2peer.api.ManualDeployment;
 import i5.las2peer.api.Service;
+import i5.las2peer.api.execution.InternalServiceException;
+import i5.las2peer.api.execution.ServiceAccessDeniedException;
+import i5.las2peer.api.execution.ServiceInvocationFailedException;
+import i5.las2peer.api.execution.ServiceMethodNotFoundException;
+import i5.las2peer.api.execution.ServiceNotAuthorizedException;
+import i5.las2peer.api.execution.ServiceNotAvailableException;
+import i5.las2peer.api.execution.ServiceNotFoundException;
 import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.api.security.Agent;
+import i5.las2peer.api.security.AgentException;
+import i5.las2peer.logging.bot.BotMessage;
 import i5.las2peer.logging.monitoring.MonitoringMessage;
+import i5.las2peer.security.BotAgent;
 import i5.las2peer.security.MonitoringAgent;
+import i5.las2peer.security.ServiceAgentImpl;
 import i5.las2peer.services.mobsos.dataProcessing.database.DatabaseInsertStatement;
 import i5.las2peer.services.mobsos.dataProcessing.database.SQLDatabase;
 import i5.las2peer.services.mobsos.dataProcessing.database.SQLDatabaseType;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 
 /**
  * 
@@ -29,6 +48,9 @@ public class MonitoringDataProcessingService extends Service {
 	private MonitoringAgent receivingAgent; // This agent will be responsible for receiving all incoming message
 	private Map<String, String> monitoredServices = new HashMap<String, String>(); // A list of services that are
 																					// monitored
+	private BotAgent actingAgent;
+	private Set<String> triggerFunctions = new HashSet<String>();
+	private ArrayList<BotMessage> botMessages = new ArrayList<BotMessage>();
 
 	/**
 	 * Configuration parameters, values will be set by the configuration file.
@@ -106,14 +128,39 @@ public class MonitoringDataProcessingService extends Service {
 	private boolean processMessages(MonitoringMessage[] messages) {
 		boolean returnStatement = true;
 		int counter = 0;
+		botMessages = new ArrayList<BotMessage>();
 		for (MonitoringMessage message : messages) {
 			// Happens when a node has sent its last messages
 			if (message == null) {
 				counter++;
-			}
+			} else if (message.getEvent() == MonitoringEvent.BOT_ADD_TO_MONITORING) {
+				try {
+					JSONObject jr = new JSONObject();
+					JSONParser p = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
-			// Add node to database (running means we got an id representation)
-			else if ((message.getEvent() == MonitoringEvent.NODE_STATUS_CHANGE
+					jr = (JSONObject) p.parse(message.getRemarks());
+					ServiceAgentImpl sa = (ServiceAgentImpl) Context.get().getServiceAgent();
+					try {
+						actingAgent = (BotAgent) sa.getRunningAtNode().getAgent(jr.getAsString("botId"));
+					} catch (AgentException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					JSONArray jra = (JSONArray) jr.get("triggerFunctions");
+					for (int i = 0; i < jra.size(); i++) {
+						triggerFunctions.add(((String) jra.get(i)).toLowerCase());
+					}
+					System.out.println("\u001B[32mBot " + actingAgent.getLoginName() + " added.\u001B[0m");
+					returnStatement = persistMessage(message, "MESSAGE");
+					if (!returnStatement)
+						counter++;
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				// Add node to database (running means we got an id representation)
+			} else if ((message.getEvent() == MonitoringEvent.NODE_STATUS_CHANGE
 					&& message.getRemarks().equals("RUNNING"))) {
 				returnStatement = persistMessage(message, "NODE");
 				if (!returnStatement)
@@ -193,6 +240,22 @@ public class MonitoringDataProcessingService extends Service {
 				returnStatement = persistMessage(message, "MESSAGE");
 				if (!returnStatement)
 					counter++;
+				JSONParser p = new JSONParser(JSONParser.MODE_PERMISSIVE);
+				try {
+					Object jo = p.parse(message.getRemarks());
+					if (jo instanceof JSONObject) {
+						String function = ((JSONObject) jo).getAsString("functionName");
+						if (function != null && hasBot() && triggerFunctions.contains(function.toLowerCase())) {
+							BotMessage m = new BotMessage(message.getTimestamp(), message.getEvent(),
+									message.getSourceNode(), message.getSourceAgentId(), message.getDestinationNode(),
+									message.getDestinationAgentId(), message.getRemarks());
+							botMessages.add(m);
+						}
+					}
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} else if (message.getEvent() == MonitoringEvent.AGENT_REMOVED) {
 				returnStatement = persistMessage(message, "REGISTERED_AT");
 				if (!returnStatement)
@@ -207,6 +270,34 @@ public class MonitoringDataProcessingService extends Service {
 				returnStatement = persistMessage(message, "MESSAGE");
 				if (!returnStatement)
 					counter++;
+			}
+		}
+		if (!botMessages.isEmpty()) {
+			try {
+				Context.getCurrent().invoke("i5.las2peer.services.socialBotManagerService.SocialBotManagerService",
+						"getMessages", (Serializable) botMessages);
+				// actingAgent.receiveMessage(m, actingAgent.getRunningAtNode().getAgentContext(actingAgent));
+			} catch (ServiceNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ServiceNotAvailableException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InternalServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ServiceMethodNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ServiceInvocationFailedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ServiceAccessDeniedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ServiceNotAuthorizedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		System.out.println((messages.length - counter) + "/" + messageCount + " messages were handled.");
@@ -267,5 +358,9 @@ public class MonitoringDataProcessingService extends Service {
 			}
 		}
 		return this.receivingAgent.getIdentifier();
+	}
+
+	public boolean hasBot() {
+		return actingAgent != null;
 	}
 }

@@ -189,6 +189,8 @@ public class DatabaseInsertStatement {
 					agentType = "GROUP";
 				} else if (monitoringMessage.getRemarks().contains("MonitoringAgent")) {
 					agentType = "MONITORING";
+				} else if (monitoringMessage.getRemarks().contains("BotAgent")) {
+					agentType = "BOT";
 				} else if (monitoringMessage.getRemarks().contains("ServiceInfoAgent")) {
 					agentType = "SERVICE_INFO";
 				} else if (monitoringMessage.getRemarks().contains("Mediator")) {
