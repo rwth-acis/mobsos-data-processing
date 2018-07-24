@@ -240,21 +240,25 @@ public class MonitoringDataProcessingService extends Service {
 				returnStatement = persistMessage(message, "MESSAGE");
 				if (!returnStatement)
 					counter++;
-				JSONParser p = new JSONParser(JSONParser.MODE_PERMISSIVE);
-				try {
-					Object jo = p.parse(message.getRemarks());
-					if (jo instanceof JSONObject) {
-						String function = ((JSONObject) jo).getAsString("functionName");
-						if (function != null && hasBot() && triggerFunctions.contains(function.toLowerCase())) {
-							BotMessage m = new BotMessage(message.getTimestamp(), message.getEvent(),
-									message.getSourceNode(), message.getSourceAgentId(), message.getDestinationNode(),
-									message.getDestinationAgentId(), message.getRemarks());
-							botMessages.add(m);
+
+				if (message.getRemarks() != null) {
+					JSONParser p = new JSONParser(JSONParser.MODE_PERMISSIVE);
+					try {
+						Object jo = p.parse(message.getRemarks());
+						if (jo instanceof JSONObject) {
+							String function = ((JSONObject) jo).getAsString("functionName");
+							if (function != null && hasBot() && triggerFunctions.contains(function.toLowerCase())) {
+								BotMessage m = new BotMessage(message.getTimestamp(), message.getEvent(),
+										message.getSourceNode(), message.getSourceAgentId(),
+										message.getDestinationNode(), message.getDestinationAgentId(),
+										message.getRemarks());
+								botMessages.add(m);
+							}
 						}
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
 			} else if (message.getEvent() == MonitoringEvent.AGENT_REMOVED) {
 				returnStatement = persistMessage(message, "REGISTERED_AT");
