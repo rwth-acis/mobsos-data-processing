@@ -58,7 +58,8 @@ public class MonitoringDataProcessingService extends Service {
 		try {
 			con = database.getDataSource().getConnection();
 		} catch (SQLException e) {
-			System.out.println("Failed to Connect");
+			System.out.println("Failed to connect to database:");
+			System.out.println(e);
 		}
 	}
 
