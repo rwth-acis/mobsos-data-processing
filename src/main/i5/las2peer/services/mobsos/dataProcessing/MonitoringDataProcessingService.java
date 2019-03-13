@@ -48,7 +48,7 @@ public class MonitoringDataProcessingService extends Service {
 	private MonitoringAgent receivingAgent; // This agent will be responsible for receiving all incoming message
 	private Map<String, String> monitoredServices = new HashMap<String, String>(); // A list of services that are
 																					// monitored
-	private BotAgent actingAgent;
+	private HashSet<BotAgent> actingAgents;
 	private Set<String> triggerFunctions = new HashSet<String>();
 	private ArrayList<BotMessage> botMessages = new ArrayList<BotMessage>();
 
@@ -82,7 +82,10 @@ public class MonitoringDataProcessingService extends Service {
 		try {
 			con = database.getDataSource().getConnection();
 		} catch (SQLException e) {
-			System.out.println("Failed to Connect");
+			System.out.println("Failed to Connect: "+e.getMessage());
+		}
+		if(actingAgents==null) {
+			actingAgents = new HashSet<BotAgent>();
 		}
 	}
 
@@ -135,22 +138,28 @@ public class MonitoringDataProcessingService extends Service {
 				counter++;
 			} else if (message.getEvent() == MonitoringEvent.BOT_ADD_TO_MONITORING) {
 				try {
-					JSONObject jr = new JSONObject();
-					JSONParser p = new JSONParser(JSONParser.MODE_PERMISSIVE);
+					JSONObject jsonRemarks = new JSONObject();
+					JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
-					jr = (JSONObject) p.parse(message.getRemarks());
+					jsonRemarks = (JSONObject) jsonParser.parse(message.getRemarks());
+					JSONArray botIds = (JSONArray) jsonRemarks.get("botIds");
 					ServiceAgentImpl sa = (ServiceAgentImpl) Context.get().getServiceAgent();
-					try {
-						actingAgent = (BotAgent) sa.getRunningAtNode().getAgent(jr.getAsString("botId"));
-					} catch (AgentException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					BotAgent bAgent = null;
+					for (int i = 0; i < botIds.size(); i++) {
+						try {
+							bAgent = (BotAgent) sa.getRunningAtNode().getAgent((String)botIds.get(i));
+						} catch (AgentException e) {
+							// TODO Maybe monitor that the Agent could not be found etc.
+							e.printStackTrace();
+						}
+						actingAgents.add(bAgent);
+						System.out.println("\u001B[32mBot " + bAgent.getLoginName() + " added.\u001B[0m");
 					}
-					JSONArray jra = (JSONArray) jr.get("triggerFunctions");
+					JSONArray jra = (JSONArray) jsonRemarks.get("triggerFunctions");
 					for (int i = 0; i < jra.size(); i++) {
 						triggerFunctions.add(((String) jra.get(i)).toLowerCase());
 					}
-					System.out.println("\u001B[32mBot " + actingAgent.getLoginName() + " added.\u001B[0m");
+					
 					returnStatement = persistMessage(message, "MESSAGE");
 					if (!returnStatement)
 						counter++;
@@ -365,6 +374,6 @@ public class MonitoringDataProcessingService extends Service {
 	}
 
 	public boolean hasBot() {
-		return actingAgent != null;
+		return actingAgents != null && !actingAgents.isEmpty();
 	}
 }
