@@ -15,6 +15,7 @@
 
         <dependency org="com.googlecode.json-simple" name="json-simple" rev="1.1" />
         <dependency org="org.apache.commons" name="commons-dbcp2" rev="2.5.0" />
+        <dependency org="commons-codec" name="commons-codec" rev="1.12" />
         <dependency org="mysql" name="mysql-connector-java" rev="8.0.13" />
         <dependency org="IBMJDBC" name="db2jcc" rev="0" />
         <dependency org="IBMJDBC" name="db2jcc_Licence" rev="0" />
