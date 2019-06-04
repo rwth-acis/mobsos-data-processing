@@ -1,12 +1,12 @@
 package i5.las2peer.services.mobsos.dataProcessing.database;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Timestamp;
-
 import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.logging.monitoring.MonitoringMessage;
 import i5.las2peer.services.mobsos.dataProcessing.MonitoringMessageWithEncryptedAgents;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 
 /**
  * 
@@ -306,17 +306,13 @@ public class DatabaseInsertStatement {
 		try {
 			statement = con.prepareStatement(
 					"INSERT INTO NODE(NODE_ID, NODE_LOCATION) VALUES(?,?) ON DUPLICATE KEY UPDATE NODE_ID = NODE_ID;");
-			if (monitoringMessage.getEvent() == MonitoringEvent.NODE_STATUS_CHANGE) {
-				if (monitoringMessage.getSourceNode() == null)
-					throw new Exception("Missing information for persisting node entity!");
-				String nodeId = monitoringMessage.getSourceNode().substring(0, 12);
-				int startingLocationPosition = monitoringMessage.getSourceNode().lastIndexOf("/") + 1;
-				String nodeLocation = monitoringMessage.getSourceNode().substring(startingLocationPosition);
-				statement.setString(1, nodeId);
-				statement.setString(2, nodeLocation);
-			} else {
-				throw new Exception("Node persistence only at new node notice or node creation events!");
-			}
+			if (monitoringMessage.getSourceNode() == null)
+				throw new Exception("Missing information for persisting node entity!");
+			String nodeId = monitoringMessage.getSourceNode().substring(0, 12);
+			int startingLocationPosition = monitoringMessage.getSourceNode().lastIndexOf("/") + 1;
+			String nodeLocation = monitoringMessage.getSourceNode().substring(startingLocationPosition);
+			statement.setString(1, nodeId);
+			statement.setString(2, nodeLocation);
 		} catch (Exception e) {
 			// TODO LOG
 			e.printStackTrace();
@@ -539,23 +535,18 @@ public class DatabaseInsertStatement {
 			MonitoringMessageWithEncryptedAgents monitoringMessage, String DB2Schema) throws Exception {
 		PreparedStatement statement = null;
 		try {
-
-			if (monitoringMessage.getEvent() == MonitoringEvent.NODE_STATUS_CHANGE) {
-				if (monitoringMessage.getSourceNode() == null)
-					throw new Exception("Missing information for persisting node entity!");
-				String nodeId = monitoringMessage.getSourceNode().substring(0, 12);
-				int startingLocationPosition = monitoringMessage.getSourceNode().lastIndexOf("/") + 1;
-				String nodeLocation = monitoringMessage.getSourceNode().substring(startingLocationPosition);
-				// Duplicate can happen because of new node notices
-				statement = con.prepareStatement("MERGE INTO " + DB2Schema + ".NODE node1 USING (VALUES('" + nodeId
-						+ "', '" + nodeLocation + "')) AS node2(NODE_ID,NODE_LOCATION) "
-						+ "ON node1.NODE_ID=node2.NODE_ID WHEN MATCHED THEN "
-						+ "UPDATE SET node1.NODE_LOCATION = node2.NODE_LOCATION "
-						+ "WHEN NOT MATCHED THEN INSERT (NODE_ID, NODE_LOCATION) VALUES('" + nodeId + "', '"
-						+ nodeLocation + "')");
-			} else {
-				throw new Exception("Node persistence only at new node notice or node creation events!");
-			}
+			if (monitoringMessage.getSourceNode() == null)
+				throw new Exception("Missing information for persisting node entity!");
+			String nodeId = monitoringMessage.getSourceNode().substring(0, 12);
+			int startingLocationPosition = monitoringMessage.getSourceNode().lastIndexOf("/") + 1;
+			String nodeLocation = monitoringMessage.getSourceNode().substring(startingLocationPosition);
+			// Duplicate can happen because of new node notices
+			statement = con.prepareStatement("MERGE INTO " + DB2Schema + ".NODE node1 USING (VALUES('" + nodeId
+					+ "', '" + nodeLocation + "')) AS node2(NODE_ID,NODE_LOCATION) "
+					+ "ON node1.NODE_ID=node2.NODE_ID WHEN MATCHED THEN "
+					+ "UPDATE SET node1.NODE_LOCATION = node2.NODE_LOCATION "
+					+ "WHEN NOT MATCHED THEN INSERT (NODE_ID, NODE_LOCATION) VALUES('" + nodeId + "', '"
+					+ nodeLocation + "')");
 		} catch (Exception e) {
 			// TODO LOG
 			e.printStackTrace();

@@ -1,11 +1,5 @@
 package i5.las2peer.services.mobsos.dataProcessing;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-
 import i5.las2peer.api.Context;
 import i5.las2peer.api.ManualDeployment;
 import i5.las2peer.api.Service;
@@ -14,8 +8,16 @@ import i5.las2peer.api.security.Agent;
 import i5.las2peer.logging.monitoring.MonitoringMessage;
 import i5.las2peer.security.MonitoringAgent;
 import i5.las2peer.services.mobsos.dataProcessing.database.DatabaseInsertStatement;
+import i5.las2peer.services.mobsos.dataProcessing.database.DatabaseQuery;
 import i5.las2peer.services.mobsos.dataProcessing.database.SQLDatabase;
 import i5.las2peer.services.mobsos.dataProcessing.database.SQLDatabaseType;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -207,19 +209,22 @@ public class MonitoringDataProcessingService extends Service {
 		return returnStatement;
 	}
 
+
+	private boolean persistMessage(MonitoringMessage message, String table) {
+		return this.persistMessage(message, table, true);
+	}
+
 	/**
-	 * 
 	 * This method constructs SQL-statements by calling the {@link DatabaseInsertStatement} helper class. It then calls
 	 * the database for persistence.
-	 * 
-	 * @param message a {@link i5.las2peer.logging.monitoring.MonitoringMessage}
-	 * @param table the table to insert to. This parameter does determine what action will be performed on the database
-	 *            (insert an agent, a message, a node..).
-	 * 
+	 *
+	 * @param message           a {@link i5.las2peer.logging.monitoring.MonitoringMessage}
+	 * @param table             the table to insert to. This parameter does determine what action will be performed on the database
+	 *                          (insert an agent, a message, a node..).
+	 * @param exceptionHandling Set to true to enable exception recovery after a failed database interaction.
 	 * @return true, if message persistence did work
-	 * 
 	 */
-	private boolean persistMessage(MonitoringMessage message, String table) {
+	private boolean persistMessage(MonitoringMessage message, String table, boolean exceptionHandling) {
 		boolean returnStatement = false;
 		if (con == null) {
 			return false;
@@ -233,13 +238,35 @@ public class MonitoringDataProcessingService extends Service {
 			}
 			insertStatement.close();
 		} catch (Exception e) {
+			if (exceptionHandling) {
+				try {
+					// attempt recovery
+					if ("REGISTERED_AT".equals(table)) {
+						// sometimes the node is not present at the node table
+						PreparedStatement nodeStatement = DatabaseQuery.returnNodeQueryStatement(con,
+								message.getSourceNode(), database.getJdbcInfo(), DB2Schema);
+						ResultSet result = nodeStatement.executeQuery();
+						if (!result.next()) {
+							// node is actually not present in NODE table
+							System.out.println("Monitoring: Source node " + message.getSourceNode() + " is unknown. " +
+									"Adding to node list and reattempting to process the message.");
+							PreparedStatement insertStatement = DatabaseInsertStatement.returnInsertStatement(con, message,
+									database.getJdbcInfo(), DB2Schema, "NODE", hashRemarks);
+							insertStatement.executeUpdate();
+							return persistMessage(message, table, false);
+						}
+					}
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
 			e.printStackTrace();
 		}
 		return returnStatement;
 	}
 
 	/**
-	 * 
+	 *
 	 * Returns the id of this monitoring agent (that will be responsible for message receiving). Creates one if not
 	 * existent.
 	 * 
