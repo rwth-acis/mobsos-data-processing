@@ -1,12 +1,15 @@
 package i5.las2peer.services.mobsos.dataProcessing.database;
 
-import i5.las2peer.api.logging.MonitoringEvent;
-import i5.las2peer.logging.monitoring.MonitoringMessage;
-import i5.las2peer.services.mobsos.dataProcessing.MonitoringMessageWithEncryptedAgents;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import i5.las2peer.api.logging.MonitoringEvent;
+import i5.las2peer.logging.monitoring.MonitoringMessage;
+import i5.las2peer.services.mobsos.dataProcessing.MonitoringMessageWithEncryptedAgents;
 
 /**
  * 
@@ -186,6 +189,8 @@ public class DatabaseInsertStatement {
 					agentType = "GROUP";
 				} else if (monitoringMessage.getRemarks().contains("MonitoringAgent")) {
 					agentType = "MONITORING";
+				} else if (monitoringMessage.getRemarks().contains("BotAgent")) {
+					agentType = "BOT";
 				} else if (monitoringMessage.getRemarks().contains("ServiceInfoAgent")) {
 					agentType = "SERVICE_INFO";
 				} else if (monitoringMessage.getRemarks().contains("Mediator")) {
@@ -224,12 +229,22 @@ public class DatabaseInsertStatement {
 		PreparedStatement statement = null;
 		try {
 			statement = con.prepareStatement(
-					"INSERT INTO SERVICE(AGENT_ID, SERVICE_CLASS_NAME) VALUES(?,?) ON DUPLICATE KEY UPDATE AGENT_ID=AGENT_ID;");
+					"INSERT INTO SERVICE(AGENT_ID, SERVICE_CLASS_NAME, SERVICE_PATH) VALUES(?,?,?) ON DUPLICATE KEY UPDATE AGENT_ID=AGENT_ID;");
 
-			if (monitoringMessage.getSourceAgentId() == null || monitoringMessage.getRemarks() == null)
+			if (monitoringMessage.getSourceAgentId() == null || monitoringMessage.getJsonRemarks() == null)
 				throw new Exception("Missing information for persisting service entity!");
 			statement.setString(1, monitoringMessage.getSourceAgentId());
-			statement.setString(2, monitoringMessage.getRemarks());
+			JSONParser parser = new JSONParser();
+			JSONObject params = (JSONObject) parser.parse(monitoringMessage.getJsonRemarks());
+
+			String serviceName = (String) params.get("serviceName");
+			String serviceAlias = (String) params.get("serviceAlias");
+			statement.setString(2, serviceName);
+			if (!serviceAlias.equals("null")) {
+				statement.setString(3, serviceAlias);
+			} else {
+				statement.setString(3, "");
+			}
 		} catch (Exception e) {
 			// TODO LOG
 			e.printStackTrace();
@@ -324,8 +339,8 @@ public class DatabaseInsertStatement {
 	 * 
 	 * Returns a DB2 statement for the message table.
 	 * 
-	 * @param message a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information
-	 *            to be stored
+	 * @param message a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information to be
+	 *            stored
 	 * @param DB2Schema the database schema
 	 * 
 	 * @return a DB2 statement
@@ -470,8 +485,8 @@ public class DatabaseInsertStatement {
 	 * 
 	 * Returns a DB2 statement for the "Registered At" table.
 	 * 
-	 * @param message a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information
-	 *            to be stored
+	 * @param message a {@link i5.las2peer.logging.monitoring.MonitoringMessage} that contains the information to be
+	 *            stored
 	 * @param DB2Schema the database schema
 	 * 
 	 * @return a DB2 statement
