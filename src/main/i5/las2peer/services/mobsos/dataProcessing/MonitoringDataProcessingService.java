@@ -41,6 +41,7 @@ public class MonitoringDataProcessingService extends Service {
     private HashSet<BotAgent> actingAgents;
     private Set<String> triggerFunctions = new HashSet<String>();
     private ArrayList<BotMessage> botMessages = new ArrayList<BotMessage>();
+    private ArrayList<String> xAPIstatements = new ArrayList<String>();
 
     /**
      * Configuration parameters, values will be set by the configuration file.
@@ -54,6 +55,7 @@ public class MonitoringDataProcessingService extends Service {
     private String databasePassword;
     private String DB2Schema; // Only needed if a DB2 database is used
     private boolean hashRemarks;
+    private boolean sendToLRS; //Added for LRS
     private Connection con;
     private SQLDatabase database; // The database instance to write to.
 
@@ -233,6 +235,12 @@ public class MonitoringDataProcessingService extends Service {
                     counter++;
 
                 if (message.getRemarks() != null) {
+                    if (sendToLRS) {
+                        String statement = message.getRemarks(); 
+                        if (statement.contains("actor") && statement.contains("verb") && statement.contains("object")
+                            && statement.contains("result"))
+                            xAPIstatements.add(statement);
+                    }
                     JSONParser p = new JSONParser(JSONParser.MODE_PERMISSIVE);
                     try {
                         Object jo = p.parse(message.getRemarks());
@@ -267,6 +275,36 @@ public class MonitoringDataProcessingService extends Service {
                     counter++;
             }
         }
+        
+        if (!xAPIstatements.isEmpty()){
+            try {
+                Context.get().invoke("i5.las2peer.services.mentoringCockpitService.MentoringCockpitService@1.0", "sendXAPIstatement", 
+                        (Serializable) xAPIstatements);
+            } catch (ServiceNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ServiceNotAvailableException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (InternalServiceException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ServiceMethodNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ServiceInvocationFailedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ServiceAccessDeniedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ServiceNotAuthorizedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            xAPIstatements.clear();
+        }
+        
         if (!botMessages.isEmpty()) {
             try {
                 Context.getCurrent().invoke("i5.las2peer.services.socialBotManagerService.SocialBotManagerService",
