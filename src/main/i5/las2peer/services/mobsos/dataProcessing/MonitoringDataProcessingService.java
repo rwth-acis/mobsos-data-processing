@@ -237,8 +237,7 @@ public class MonitoringDataProcessingService extends Service {
                 if (message.getRemarks() != null) {
                     if (sendToLRS) {
                         String statement = message.getRemarks(); 
-                        if (statement.contains("actor") && statement.contains("verb") && statement.contains("object")
-                            && statement.contains("result"))
+                        if (statement.contains("actor") && statement.contains("verb") && statement.contains("object"))
                             xAPIstatements.add(statement);
                     }
                     JSONParser p = new JSONParser(JSONParser.MODE_PERMISSIVE);
