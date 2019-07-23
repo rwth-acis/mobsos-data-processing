@@ -235,7 +235,8 @@ public class MonitoringDataProcessingService extends Service {
                     counter++;
 
                 if (message.getRemarks() != null) {
-                    if (sendToLRS) {
+                    String serviceClassName = monitoredServices.get(message.getSourceAgentId());
+                    if (sendToLRS && serviceClassName.contains("i5.las2peer.services.mentoringCockpitService.MentoringCockpitService@1.0")) {
                         String statement = message.getRemarks(); 
                         if (statement.contains("actor") && statement.contains("verb") && statement.contains("object"))
                             xAPIstatements.add(statement);
