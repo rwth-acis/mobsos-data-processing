@@ -236,7 +236,7 @@ public class MonitoringDataProcessingService extends Service {
 
                 if (message.getRemarks() != null) {
                     String serviceClassName = monitoredServices.get(message.getSourceAgentId());
-                    if (sendToLRS && serviceClassName.contains("i5.las2peer.services.mentoringCockpitService.MentoringCockpitService@1.0")) {
+                    if (sendToLRS && serviceClassName.contains("i5.las2peer.services.moodleDataProxyService.MoodleDataProxyService@1.0")) {
                         String statement = message.getRemarks(); 
                         if (statement.contains("actor") && statement.contains("verb") && statement.contains("object"))
                             xAPIstatements.add(statement);
@@ -278,7 +278,7 @@ public class MonitoringDataProcessingService extends Service {
         
         if (!xAPIstatements.isEmpty()){
             try {
-                Context.get().invoke("i5.las2peer.services.mentoringCockpitService.MentoringCockpitService@1.0", "sendXAPIstatement", 
+                Context.get().invoke("i5.las2peer.services.learningLockerService.LearningLockerService@1.0", "sendXAPIstatement", 
                         (Serializable) xAPIstatements);
             } catch (ServiceNotFoundException e) {
                 // TODO Auto-generated catch block
