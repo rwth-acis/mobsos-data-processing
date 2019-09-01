@@ -29,7 +29,7 @@ export MYSQL_DATABASE='LAS2PEERMON'
 [[ -z "${MYSQL_HOST}" ]] && export MYSQL_HOST='mysql'
 [[ -z "${MYSQL_PORT}" ]] && export MYSQL_PORT='3306'
 [[ -z "${HASH_REMARKS}" ]] && export HASH_REMARKS='FALSE'
-[[ -z "${SEND_TO_LRS}" ]] && export SEND_TO_LRS='TRUE'
+[[ -z "${SEND_TO_LRS}" ]] && export SEND_TO_LRS='FALSE'
 
 # configure service properties
 
