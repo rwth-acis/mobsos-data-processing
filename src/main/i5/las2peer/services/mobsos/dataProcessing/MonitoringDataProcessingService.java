@@ -236,7 +236,10 @@ public class MonitoringDataProcessingService extends Service {
 
                 if (message.getRemarks() != null) {
                     String serviceClassName = monitoredServices.get(message.getSourceAgentId());
-                    if (sendToLRS && serviceClassName.contains("i5.las2peer.services.moodleDataProxyService.MoodleDataProxyService@1.0")) {
+                    if (sendToLRS &&
+                           serviceClassName != null &&
+                           serviceClassName.contains("i5.las2peer.services.moodleDataProxyService.MoodleDataProxyService@1.0"))
+                    {
                         String statement = message.getRemarks(); 
                         if (statement.contains("actor") && statement.contains("verb") && statement.contains("object"))
                             xAPIstatements.add(statement);
