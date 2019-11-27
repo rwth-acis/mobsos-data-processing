@@ -8,7 +8,7 @@ if [[ ! -z "${DEBUG}" ]]; then
 fi
 
 # set some helpful variables
-export SERVICE_PROPERTY_FILE='etc/i5.las2peer.services.mobsos.dataProcessing.MonitoringDataProcessingService.properties'
+export SERVICE_PROPERTY_FILE='etc/i5.las2peer.services.mobsos.dataProcessing.MobSOSDataProcessingService.properties'
 export SERVICE_VERSION=$(awk -F "=" '/service.version/ {print $2}' etc/ant_configuration/service.properties)
 export SERVICE_NAME=$(awk -F "=" '/service.name/ {print $2}' etc/ant_configuration/service.properties)
 export SERVICE_CLASS=$(awk -F "=" '/service.class/ {print $2}' etc/ant_configuration/service.properties)
@@ -29,6 +29,7 @@ export MYSQL_DATABASE='LAS2PEERMON'
 [[ -z "${MYSQL_HOST}" ]] && export MYSQL_HOST='mysql'
 [[ -z "${MYSQL_PORT}" ]] && export MYSQL_PORT='3306'
 [[ -z "${HASH_REMARKS}" ]] && export HASH_REMARKS='FALSE'
+[[ -z "${SEND_TO_LRS}" ]] && export SEND_TO_LRS='FALSE'
 
 # configure service properties
 
@@ -42,6 +43,7 @@ set_in_service_config databaseName ${MYSQL_DATABASE}
 set_in_service_config databaseHost ${MYSQL_HOST}
 set_in_service_config databasePort ${MYSQL_PORT}
 set_in_service_config hashRemarks ${HASH_REMARKS}
+set_in_service_config sendToLRS ${SEND_TO_LRS}
 
 # ensure the database is ready
 while ! mysqladmin ping -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASSWORD} --silent; do
@@ -73,7 +75,7 @@ fi
 
 # prevent glob expansion in lib/*
 set -f
-LAUNCH_COMMAND='java -cp lib/* i5.las2peer.tools.L2pNodeLauncher -s service -p '"${LAS2PEER_PORT}"
+LAUNCH_COMMAND='java -cp lib/* i5.las2peer.tools.L2pNodeLauncher -s service -p '"${LAS2PEER_PORT} ${SERVICE_EXTRA_ARGS}"
 if [[ ! -z "${BOOTSTRAP}" ]]; then
     LAUNCH_COMMAND="${LAUNCH_COMMAND} -b ${BOOTSTRAP}"
 fi
@@ -81,7 +83,7 @@ fi
 # start the service within a las2peer node
 if [[ -z "${@}" ]]
 then
-  exec ${LAUNCH_COMMAND} startService\("'""${SERVICE}""'", "'""${SERVICE_PASSPHRASE}""'"\) startWebConnector
+  exec ${LAUNCH_COMMAND} --observer uploadStartupDirectory startService\("'""${SERVICE}""'", "'""${SERVICE_PASSPHRASE}""'"\) startWebConnector
 else
   exec ${LAUNCH_COMMAND} ${@}
 fi
