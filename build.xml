@@ -1,21 +1,21 @@
-<project name="MonitoringDataProcessingService" default="jar" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="MobSOSDataProcessing" default="jar" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
 	<property file="etc/ant_configuration/user.properties"/>
 	<property file="etc/ant_configuration/service.properties"/>
-	
+
 	<property name="startup" location="etc/startup" />
-	
+
     <property name="src.main" location="src/main" />
     <property name="src.junit" location="src/test" />
-    
+
     <property name="tmp" location="tmp" />
     <property name="log" location="log" />
     <property name="service" location="service" />
-    
+
     <property name="tmp.classes" location="${tmp}/classes" />
     <property name="tmp.junit" location="${tmp}/test" />
 	<property name="tmp.bundle" location="${tmp}/bundle" />
-    
+
     <property name="export" location="export" />
     <property name="export.doc" location="${export}/doc" />
     <property name="junit.report" location="${export}/test_reports" />
@@ -32,7 +32,7 @@
     	    <exclude name="i5.las2peer.services.*.jar"/>
     	</fileset>
     </path>
-	    
+
     <property name="lib.junit" location="${lib}/junit-4.12.jar" />
 
 	<!-- Ivy Installation (Tool to fetch Libraries) -->
@@ -69,7 +69,7 @@
         <mkdir dir="${service}" />
 		<mkdir dir="${tmp.bundle}" />
     </target>
-	
+
     <target name="init_general">
         <tstamp/>
         <mkdir dir="${tmp}" />
@@ -77,12 +77,12 @@
         <mkdir dir="${startup}" />
         <mkdir dir="${log}" />
     </target>
-    
+
     <target name="init_compile" depends="init_general, get_deps">
         <mkdir dir="${tmp.classes}" />
         <mkdir dir="${tmp.junit}" />
     </target>
-    
+
     <target name="init_doc" depends="init_general">
         <mkdir dir="${export.doc}" />
     </target>
@@ -102,7 +102,7 @@
             </fileset>
         </copy>
     </target>
-    
+
     <target name="compile_junit" depends="init_compile">
         <javac srcdir="${src.junit}"
             destdir="${tmp.junit}"
@@ -120,7 +120,7 @@
     </target>
 
 	<target name="compile_all" depends="compile_main, compile_junit" />
-	
+
 	<!-- Generate start scripts -->
 	    <target name="startscripts" description="generate start scripts for Windows and Unix">
 	        <mkdir dir="${basedir}/bin" />
@@ -148,7 +148,7 @@
 	pause
 	</echo>
 	    </target>
-	
+
 	<!-- Generate Jars -->
     <target name="jar" depends="compile_main" description="--> build service jar including all deps">
         <jar jarfile="${service}/${service.name}-${service.version}.jar">
@@ -182,15 +182,15 @@
 
 	<!-- JUnit Testing -->
     <target name="junit" depends="junit_tests, junit_clean" description="--> execute all junit tests" />
-    
+
     <target name="init_junit" depends="init_general">
         <mkdir dir="${junit.report}" />
     </target>
-    
+
     <target name="junit_clean">
         <delete dir="${tmp.junit}" />
     </target>
-    
+
     <target name="junit_tests" depends="init_junit, compile_all">
     	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml" classpathref="libraries"/>
     	<jacoco:coverage destfile="${export}/jacoco.exec" xmlns:jacoco="antlib:org.jacoco.ant">
@@ -215,7 +215,7 @@
 				<executiondata>
 					<file file="${export}/jacoco.exec" />
 				</executiondata>
-   	 
+
 				<structure name="jacoco">
 					<classfiles>
 						<fileset dir="${tmp.classes}" />
