@@ -13,9 +13,8 @@ export SERVICE_VERSION=$(awk -F "=" '/service.version/ {print $2}' etc/ant_confi
 export SERVICE_NAME=$(awk -F "=" '/service.name/ {print $2}' etc/ant_configuration/service.properties)
 export SERVICE_CLASS=$(awk -F "=" '/service.class/ {print $2}' etc/ant_configuration/service.properties)
 export SERVICE=${SERVICE_NAME}.${SERVICE_CLASS}@${SERVICE_VERSION}
-export CREATE_DB_SQL='etc/create_database_MySQL.sql'
-export MIGRATE_DB_SQL='etc/migrate.sql'
-export DATABASE_TYPE='2'
+export CREATE_DB_SQL='etc/create_database.sql'
+export DATABASE_TYPE='1'
 export MYSQL_DATABASE='LAS2PEERMON'
 
 # check mandatory variables
@@ -56,7 +55,6 @@ echo "${MYSQL_HOST}:${MYSQL_PORT} is available. Continuing..."
 if ! mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e "desc ${MYSQL_DATABASE}.MESSAGE" > /dev/null 2>&1; then
     echo "Creating database schema..."
     mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} < ${CREATE_DB_SQL}
-    mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} < ${MIGRATE_DB_SQL}
 fi
 
 # wait for any bootstrap host to be available
