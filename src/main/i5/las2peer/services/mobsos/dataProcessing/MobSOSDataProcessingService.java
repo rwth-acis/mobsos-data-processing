@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 
 import i5.las2peer.api.Context;
 import i5.las2peer.api.ManualDeployment;
@@ -24,6 +25,7 @@ import i5.las2peer.api.execution.ServiceNotFoundException;
 import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.api.security.Agent;
 import i5.las2peer.api.security.AgentException;
+import i5.las2peer.logging.L2pLogger;
 import i5.las2peer.logging.bot.BotMessage;
 import i5.las2peer.logging.monitoring.MonitoringMessage;
 import i5.las2peer.security.BotAgent;
@@ -86,6 +88,7 @@ public class MobSOSDataProcessingService extends Service {
 		if (actingAgents == null) {
 			actingAgents = new HashSet<BotAgent>();
 		}
+		L2pLogger.setGlobalConsoleLevel(Level.WARNING);
 	}
 
 	/**
