@@ -252,7 +252,8 @@ public class MobSOSDataProcessingService extends Service {
 							&& (serviceClassName
 									.contains("i5.las2peer.services.moodleDataProxyService.MoodleDataProxyService@1.0")
 									|| serviceClassName.contains(
-											"i5.las2peer.services.onyxDataProxyService.OnyxDataProxyService@1.0.0"))) {
+											"i5.las2peer.services.onyxDataProxyService.OnyxDataProxyService@1.0.0") || serviceClassName.contains(
+											"i5.las2peer.services.AssessmentHandler.AssessmentHandlerService@1.0.0"))) {
 						String statement = message.getRemarks();
 						if (statement.contains("actor") && statement.contains("verb") && statement.contains("object"))
 							xAPIstatements.add(statement);
