@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 
 import i5.las2peer.api.Context;
 import i5.las2peer.api.ManualDeployment;
@@ -24,6 +25,7 @@ import i5.las2peer.api.execution.ServiceNotFoundException;
 import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.api.security.Agent;
 import i5.las2peer.api.security.AgentException;
+import i5.las2peer.logging.L2pLogger;
 import i5.las2peer.logging.bot.BotMessage;
 import i5.las2peer.logging.monitoring.MonitoringMessage;
 import i5.las2peer.security.BotAgent;
@@ -86,6 +88,7 @@ public class MobSOSDataProcessingService extends Service {
 		if (actingAgents == null) {
 			actingAgents = new HashSet<BotAgent>();
 		}
+		L2pLogger.setGlobalConsoleLevel(Level.WARNING);
 	}
 
 	/**
@@ -247,7 +250,7 @@ public class MobSOSDataProcessingService extends Service {
 					String serviceClassName = monitoredServices.get(message.getSourceAgentId());
 					if (sendToLRS && serviceClassName != null
 							&& (serviceClassName
-									.contains("i5.las2peer.services.moodleDataProxyService.MoodleDataProxyService@1.0")
+									.contains("i5.las2peer.services.moodleDataProxyService.MoodleDataProxyService@1.1.1")
 									|| serviceClassName.contains(
 											"i5.las2peer.services.onyxDataProxyService.OnyxDataProxyService@1.0.0"))) {
 						String statement = message.getRemarks();
@@ -290,7 +293,7 @@ public class MobSOSDataProcessingService extends Service {
 
 		if (!xAPIstatements.isEmpty()) {
 			try {
-				Context.get().invoke("i5.las2peer.services.learningLockerService.LearningLockerService@1.0",
+				Context.get().invoke("i5.las2peer.services.learningLockerService.LearningLockerService@1.0.1",
 						"sendXAPIstatement", (Serializable) xAPIstatements);
 				// TODO Handle Exceptions!
 			} catch (ServiceNotFoundException e) {
