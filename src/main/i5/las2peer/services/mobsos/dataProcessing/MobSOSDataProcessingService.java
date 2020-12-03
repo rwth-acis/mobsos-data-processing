@@ -293,7 +293,7 @@ public class MobSOSDataProcessingService extends Service {
 
 		if (!xAPIstatements.isEmpty()) {
 			try {
-				Context.get().invoke("i5.las2peer.services.learningLockerService.LearningLockerService@1.0.1",
+				Context.get().invoke("i5.las2peer.services.learningLockerService.LearningLockerService@1.1.1",
 						"sendXAPIstatement", (Serializable) xAPIstatements);
 				// TODO Handle Exceptions!
 			} catch (ServiceNotFoundException e) {
