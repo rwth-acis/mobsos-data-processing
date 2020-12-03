@@ -250,7 +250,7 @@ public class MobSOSDataProcessingService extends Service {
 					String serviceClassName = monitoredServices.get(message.getSourceAgentId());
 					if (sendToLRS && serviceClassName != null
 							&& (serviceClassName
-									.contains("i5.las2peer.services.moodleDataProxyService.MoodleDataProxyService@1.1.1")
+									.contains("i5.las2peer.services.moodleDataProxyService.MoodleDataProxyService@1.2.0")
 									|| serviceClassName.contains(
 											"i5.las2peer.services.onyxDataProxyService.OnyxDataProxyService@1.0.0"))) {
 						String statement = message.getRemarks();
@@ -293,7 +293,7 @@ public class MobSOSDataProcessingService extends Service {
 
 		if (!xAPIstatements.isEmpty()) {
 			try {
-				Context.get().invoke("i5.las2peer.services.learningLockerService.LearningLockerService@1.1.1",
+				Context.get().invoke("i5.las2peer.services.learningLockerService.LearningLockerService@1.1.0",
 						"sendXAPIstatement", (Serializable) xAPIstatements);
 				// TODO Handle Exceptions!
 			} catch (ServiceNotFoundException e) {
