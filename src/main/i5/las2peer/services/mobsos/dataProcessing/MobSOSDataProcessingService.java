@@ -250,7 +250,7 @@ public class MobSOSDataProcessingService extends Service {
 					String serviceClassName = monitoredServices.get(message.getSourceAgentId());
 					if (sendToLRS && serviceClassName != null
 							&& (serviceClassName.contains(
-									"i5.las2peer.services.moodleDataProxyService.MoodleDataProxyService@1.2.0")
+									"i5.las2peer.services.moodleDataProxyService.MoodleDataProxyService@1.3.0")
 									|| serviceClassName.contains(
 											"i5.las2peer.services.onyxDataProxyService.OnyxDataProxyService@1.0.0")
 									|| serviceClassName.contains("i5.las2peer.services.tmitocar"))) {
