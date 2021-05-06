@@ -9,6 +9,8 @@ RUN addgroup -g 1000 -S las2peer && \
 COPY --chown=las2peer:las2peer . /src
 WORKDIR /src
 
+RUN dos2unix docker-entrypoint.sh
+
 # run the rest as unprivileged user
 USER las2peer
 RUN ant jar
