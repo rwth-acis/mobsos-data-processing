@@ -54,6 +54,7 @@ public class MobSOSDataProcessingService extends Service {
 	private Set<String> triggerFunctions = new HashSet<String>();
 	private ArrayList<BotMessage> botMessages = new ArrayList<BotMessage>();
 	private ArrayList<String> xAPIstatements = new ArrayList<String>();
+	//private boolean sendStatementsToBots = true; // True if xAPI statements should also be sent to the social bot manager service
 
 	/**
 	 * Configuration parameters, values will be set by the configuration file.
@@ -121,7 +122,7 @@ public class MobSOSDataProcessingService extends Service {
 	 * Checks the messages content and calls {@link #persistMessage(MonitoringMessage, String)} with the corresponding
 	 * values.
 	 *
-	 * @param messages an array of {@link i5.las2peer.logging.monitoring.MonitoringMessage}s
+	 * @param messages an array of {@link i5.las2peer.logging.monitoring.MonitoringMessage}
 	 * @return true, if message persistence did work
 	 */
 	private boolean processMessages(MonitoringMessage[] messages) {
@@ -155,7 +156,7 @@ public class MobSOSDataProcessingService extends Service {
 					for (int i = 0; i < jra.size(); i++) {
 						triggerFunctions.add(((String) jra.get(i)).toLowerCase());
 					}
-
+						
 					returnStatement = persistMessage(message, "MESSAGE");
 					if (!returnStatement)
 						counter++;
@@ -237,6 +238,9 @@ public class MobSOSDataProcessingService extends Service {
 			// If enabled for monitoring, add service message to database
 			else if (Math.abs(message.getEvent().getCode()) >= 7000
 					&& (Math.abs(message.getEvent().getCode()) < 8000)) {
+				if (message.getRemarks().contains("actor") && message.getRemarks().contains("verb") && message.getRemarks().contains("object")) {
+					System.out.println("\u001B[33mDebug --- Ding\u001B[0m");
+				}
 				if (message.getEvent() == MonitoringEvent.SERVICE_SHUTDOWN) {
 					returnStatement = persistMessage(message, "REGISTERED_AT");
 					if (!returnStatement)
@@ -248,6 +252,10 @@ public class MobSOSDataProcessingService extends Service {
 
 				if (message.getRemarks() != null) {
 					String serviceClassName = monitoredServices.get(message.getSourceAgentId());
+					System.out.println("\u001B[33mDebug --- Service Name: " + serviceClassName + "\u001B[0m");
+					System.out.println("\u001B[33mDebug --- Source ID: " + message.getSourceAgentId() + "\u001B[0m");
+					System.out.println("\u001B[33mDebug --- Monitored: " + monitoredServices.toString() + "\u001B[0m");
+					/*
 					if (sendToLRS && serviceClassName != null
 							&& (serviceClassName.contains(
 									"i5.las2peer.services.moodleDataProxyService.MoodleDataProxyService@1.3.0")
@@ -256,10 +264,14 @@ public class MobSOSDataProcessingService extends Service {
 									|| serviceClassName.contains(
 											"i5.las2peer.services.AssessmentHandler.AssessmentHandlerService@1.0.0")
 									|| serviceClassName.contains("i5.las2peer.services.tmitocar"))) {
+          */
 						String statement = message.getRemarks();
-						if (statement.contains("actor") && statement.contains("verb") && statement.contains("object"))
+						if (statement.contains("actor") && statement.contains("verb") && statement.contains("object")) {
+							
 							xAPIstatements.add(statement);
-					}
+							System.out.println("Statement added");
+						}
+					//}
 					JSONParser p = new JSONParser(JSONParser.MODE_PERMISSIVE);
 					try {
 						Object jo = p.parse(message.getRemarks());
@@ -296,8 +308,14 @@ public class MobSOSDataProcessingService extends Service {
 
 		if (!xAPIstatements.isEmpty()) {
 			try {
-				Context.get().invoke("i5.las2peer.services.learningLockerService.LearningLockerService@1.1.0",
-						"sendXAPIstatement", (Serializable) xAPIstatements);
+				//Context.get().invoke("i5.las2peer.services.learningLockerService.LearningLockerService@1.0.1",
+				//		"sendXAPIstatement", (Serializable) xAPIstatements);
+				
+				
+				Context.getCurrent().invoke("i5.las2peer.services.socialBotManagerService.SocialBotManagerService",
+							"getXapiStatements", (Serializable) xAPIstatements);
+				
+				
 				// TODO Handle Exceptions!
 			} catch (ServiceNotFoundException e) {
 				e.printStackTrace();
