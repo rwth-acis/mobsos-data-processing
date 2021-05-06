@@ -255,11 +255,16 @@ public class MobSOSDataProcessingService extends Service {
 					System.out.println("\u001B[33mDebug --- Service Name: " + serviceClassName + "\u001B[0m");
 					System.out.println("\u001B[33mDebug --- Source ID: " + message.getSourceAgentId() + "\u001B[0m");
 					System.out.println("\u001B[33mDebug --- Monitored: " + monitoredServices.toString() + "\u001B[0m");
-					//if (sendToLRS && serviceClassName != null
-					//		&& (serviceClassName
-					//				.contains("i5.las2peer.services.moodleDataProxyService.MoodleDataProxyService@1.2.0")
-					//				|| serviceClassName.contains(
-					//						"i5.las2peer.services.onyxDataProxyService.OnyxDataProxyService@1.0.0"))) {
+					/*
+					if (sendToLRS && serviceClassName != null
+							&& (serviceClassName.contains(
+									"i5.las2peer.services.moodleDataProxyService.MoodleDataProxyService@1.3.0")
+									|| serviceClassName.contains(
+											"i5.las2peer.services.onyxDataProxyService.OnyxDataProxyService@1.0.0")
+									|| serviceClassName.contains(
+											"i5.las2peer.services.AssessmentHandler.AssessmentHandlerService@1.0.0")
+									|| serviceClassName.contains("i5.las2peer.services.tmitocar"))) {
+          */
 						String statement = message.getRemarks();
 						if (statement.contains("actor") && statement.contains("verb") && statement.contains("object")) {
 							
