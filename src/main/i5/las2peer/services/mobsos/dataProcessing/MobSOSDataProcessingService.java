@@ -238,9 +238,6 @@ public class MobSOSDataProcessingService extends Service {
 			// If enabled for monitoring, add service message to database
 			else if (Math.abs(message.getEvent().getCode()) >= 7000
 					&& (Math.abs(message.getEvent().getCode()) < 8000)) {
-				if (message.getRemarks().contains("actor") && message.getRemarks().contains("verb") && message.getRemarks().contains("object")) {
-					System.out.println("\u001B[33mDebug --- Ding\u001B[0m");
-				}
 				if (message.getEvent() == MonitoringEvent.SERVICE_SHUTDOWN) {
 					returnStatement = persistMessage(message, "REGISTERED_AT");
 					if (!returnStatement)
@@ -252,9 +249,10 @@ public class MobSOSDataProcessingService extends Service {
 
 				if (message.getRemarks() != null) {
 					String serviceClassName = monitoredServices.get(message.getSourceAgentId());
-					System.out.println("\u001B[33mDebug --- Service Name: " + serviceClassName + "\u001B[0m");
-					System.out.println("\u001B[33mDebug --- Source ID: " + message.getSourceAgentId() + "\u001B[0m");
-					System.out.println("\u001B[33mDebug --- Monitored: " + monitoredServices.toString() + "\u001B[0m");
+					System.out.println("\u001B[33mDebug --- Monitored: \u001B[0m");
+					for (String svc : monitoredServices.values()) {
+						System.out.println("\u001B[33m" + svc + "\u001B[0m");
+					}
 					/*
 					if (sendToLRS && serviceClassName != null
 							&& (serviceClassName.contains(
@@ -311,10 +309,12 @@ public class MobSOSDataProcessingService extends Service {
 				Context.get().invoke("i5.las2peer.services.learningLockerService.LearningLockerService",
 						"sendXAPIstatement", (Serializable) xAPIstatements);
 				
-				
-				//Context.getCurrent().invoke("i5.las2peer.services.socialBotManagerService.SocialBotManagerService",
-				//			"getXapiStatements", (Serializable) xAPIstatements);
-				
+
+				if (monitoredServices.values().stream().anyMatch(s ->
+						s.contains("i5.las2peer.services.socialBotManagerService.SocialBotManagerService"))) {
+					Context.getCurrent().invoke("i5.las2peer.services.socialBotManagerService.SocialBotManagerService",
+							"getXapiStatements", (Serializable) xAPIstatements);
+				}
 				
 				// TODO Handle Exceptions!
 			} catch (ServiceNotFoundException e) {
