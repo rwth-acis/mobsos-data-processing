@@ -293,7 +293,14 @@ public class MobSOSDataProcessingService extends Service {
 					counter++;
 			}
 		}
-
+		System.out.println("SEEE IIFF XPAPPAPAIIII EMMPPPPTYYY");
+		System.out.println("SEEE IIFF XPAPPAPAIIII EMMPPPPTYYY");
+		System.out.println("SEEE IIFF XPAPPAPAIIII EMMPPPPTYYY");
+		System.out.println("SEEE IIFF XPAPPAPAIIII EMMPPPPTYYY");
+		System.out.println("SEEE IIFF XPAPPAPAIIII EMMPPPPTYYY");
+		System.out.println("SEEE IIFF XPAPPAPAIIII EMMPPPPTYYY");
+		System.out.println(xAPIstatements);
+		System.out.println(xAPIstatements.toString());
 		if (!xAPIstatements.isEmpty()) {
 			try {
 				Context.get().invoke("i5.las2peer.services.learningLockerService.LearningLockerService@1.1.0",
