@@ -312,8 +312,8 @@ public class MobSOSDataProcessingService extends Service {
 						"sendXAPIstatement", (Serializable) xAPIstatements);
 				
 				
-				//Context.getCurrent().invoke("i5.las2peer.services.socialBotManagerService.SocialBotManagerService",
-				//			"getXapiStatements", (Serializable) xAPIstatements);
+				Context.getCurrent().invoke("i5.las2peer.services.socialBotManagerService.SocialBotManagerService",
+							"getXapiStatements", (Serializable) xAPIstatements);
 				
 				
 				// TODO Handle Exceptions!
