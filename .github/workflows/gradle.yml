@@ -17,6 +17,12 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 17
+    - name: Set up MySQL
+      run: |
+        sudo /etc/init.d/mysql start
+        mysql -e 'CREATE DATABASE LAS2PEERMON;' -uroot -proot
+    - name: Create db tables
+      run: mysql -u root -proot LAS2PEERMON < etc/create_database.sql
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
