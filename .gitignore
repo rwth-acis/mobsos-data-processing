@@ -1,7 +1,7 @@
 /tmp
 /node-storage
 /log
-/export
+/mobsos-data-processing/export
 /output
 /lib
 /etc/ivy/ivy.jar
@@ -13,3 +13,8 @@
 etc/launcher-configuration.ini
 /.idea/
 *.iml
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
