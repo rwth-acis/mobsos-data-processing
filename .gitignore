@@ -6,8 +6,6 @@
 /lib
 /etc/ivy/ivy.jar
 /service
-/bin
-/bin/*
 .DS_Store
 .DS_Store*
 etc/launcher-configuration.ini
