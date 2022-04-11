@@ -8,4 +8,4 @@
  */
 
 rootProject.name = 'mobsos-data-processing'
-include('mobsos-data-processing')
+include('app')
