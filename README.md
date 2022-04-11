@@ -1,6 +1,6 @@
 # MobSOS Data Processing
 
-[![Build Status](https://travis-ci.org/rwth-acis/mobsos-data-processing.svg?branch=master)](https://travis-ci.org/rwth-acis/mobsos-data-processing) [![codecov](https://codecov.io/gh/rwth-acis/mobsos-data-processing/branch/master/graph/badge.svg)](https://codecov.io/gh/rwth-acis/mobsos-data-processing) [![Join the chat at https://gitter.im/rwth-acis/mobsos](https://badges.gitter.im/rwth-acis/mobsos.svg)](https://gitter.im/rwth-acis/mobsos?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://github.com/rwth-acis/mobsos-data-processing/workflows/Java%20CI%20with%20Gradle/badge.svg?branch=master)](https://github.com/rwth-acis/mobsos-data-processing/actions?query=workflow%3A%22Java+CI+with+Gradle%22+branch%3Amaster) [![codecov](https://codecov.io/gh/rwth-acis/mobsos-data-processing/branch/master/graph/badge.svg)](https://codecov.io/gh/rwth-acis/mobsos-data-processing) [![Join the chat at https://gitter.im/rwth-acis/mobsos](https://badges.gitter.im/rwth-acis/mobsos.svg)](https://gitter.im/rwth-acis/mobsos?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This service is part of the MobSOS monitoring concept and processes incoming monitoring data.
 
@@ -17,7 +17,7 @@ After that, configure the [property](etc/i5.las2peer.services.mobsos.dataProcess
 Execute the following command on your shell:
 
 ```shell
-ant all
+./gradlew build
 ```
 
 ### Start
