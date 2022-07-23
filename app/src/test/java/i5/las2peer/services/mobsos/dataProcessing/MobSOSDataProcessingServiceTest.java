@@ -13,6 +13,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
+import i5.las2peer.connectors.webConnector.WebConnector;
+import net.minidev.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -54,6 +56,8 @@ public class MobSOSDataProcessingServiceTest {
 	private final static String sNode = "1234567891011";
 	private final static String dNode = "1234567891022";
 	private final static String sAgent = "c4ca4238a0b923820dcc509a6f75849b"; // md5 for 1
+
+	private static WebConnector connector;
 
 	@BeforeClass
 	public static void setUpDatabase() {
@@ -101,11 +105,22 @@ public class MobSOSDataProcessingServiceTest {
 		testService.unlock("a pass");
 
 		node.registerReceiver(testService);
+
+		node.startService(new ServiceNameVersion(WebhookTestService.class.getName(), "1.0.0"), "a pass");
+
+		// start connector
+		connector = new WebConnector(true, 0, false, 0); // port 0 means use system defined port
+		connector.start(node);
 	}
 
 	@After
 	public void stopNetwork() {
 		try {
+			if (connector != null) {
+				connector.stop();
+				connector = null;
+			}
+
 			System.out.println("stopping test network...");
 			node.shutDown();
 		} catch (Exception e) {
@@ -236,6 +251,44 @@ public class MobSOSDataProcessingServiceTest {
 			e.printStackTrace();
 			fail("Exception: " + e);
 		}
+	}
+
+	/**
+	 * Test to verify that specific monitoring messages trigger a webhook call.
+	 * Uses a helper las2peer service that receives the webhook call.
+	 */
+	@Test
+	public void testWebhookCallMessage() {
+		// create message content
+		JSONObject messageContent = new JSONObject();
+		JSONObject webhook = new JSONObject();
+		webhook.put("url", connector.getHttpEndpoint() + "/webhooktestservice/webhook");
+		webhook.put("payload", new JSONObject());
+		messageContent.put("webhook", webhook);
+
+		// create monitoring message
+		MonitoringMessage msg = new MonitoringMessage((long) 1376750476, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_1,
+				sNode, "1", dNode, "2", messageContent.toJSONString());
+
+		// verify that no webhook has been delivered until now
+		assertEquals(false, WebhookTestService.webhookDelivered);
+
+		try {
+			// get monitoring agent
+			Object result = node.invoke(testService, testServiceClass, "getReceivingAgentId", new Serializable[] { "Test" });
+			MonitoringAgent mAgent = (MonitoringAgent) node.getAgent((String) result);
+			mAgent.unlock("ProcessingAgentPass");
+
+			// send monitoring message
+			MonitoringMessage[] messages = { msg };
+			node.invoke(mAgent, testServiceClass, "getMessages", new Serializable[] { messages });
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Exception: " + e);
+		}
+
+		// verify that the webhook has been delivered
+		assertEquals(true, WebhookTestService.webhookDelivered);
 	}
 
 }
