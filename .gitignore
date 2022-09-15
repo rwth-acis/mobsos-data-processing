@@ -19,3 +19,5 @@ build
 
 export
 mobsos-data-processing/output
+etc/launcher-configuration.ini
+app/output/*
