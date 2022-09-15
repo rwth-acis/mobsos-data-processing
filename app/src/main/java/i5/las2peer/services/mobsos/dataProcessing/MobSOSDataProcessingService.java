@@ -1,6 +1,10 @@
 package i5.las2peer.services.mobsos.dataProcessing;
 
 import java.io.Serializable;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -129,6 +133,7 @@ public class MobSOSDataProcessingService extends Service {
 		boolean returnStatement = true;
 		int counter = 0;
 		botMessages = new ArrayList<BotMessage>();
+		HashMap<String, JSONObject> webhookCalls = new HashMap<>();
 		for (MonitoringMessage message : messages) {
 			// Happens when a node has sent its last messages
 			if (message == null) {
@@ -272,9 +277,19 @@ public class MobSOSDataProcessingService extends Service {
 					//}
 					JSONParser p = new JSONParser(JSONParser.MODE_PERMISSIVE);
 					try {
-						Object jo = p.parse(message.getRemarks());
-						if (jo instanceof JSONObject) {
-							String function = ((JSONObject) jo).getAsString("functionName");
+						Object obj = p.parse(message.getRemarks());
+						if (obj instanceof JSONObject) {
+							JSONObject jsonObj = (JSONObject) obj;
+
+							// check if the monitoring message should trigger a webhook call
+							if(jsonObj.containsKey("webhook")) {
+								JSONObject webhook = (JSONObject) jsonObj.get("webhook");
+								String url = webhook.getAsString("url");
+								JSONObject payload = (JSONObject) webhook.get("payload");
+								webhookCalls.put(url, payload);
+							}
+
+							String function = jsonObj.getAsString("functionName");
 							if (function != null && hasBot() && triggerFunctions.contains(function.toLowerCase())) {
 								BotMessage m = new BotMessage(message.getTimestamp(), message.getEvent(),
 										message.getSourceNode(), message.getSourceAgentId(),
@@ -361,6 +376,28 @@ public class MobSOSDataProcessingService extends Service {
 				e.printStackTrace();
 			}
 		}
+
+		// perform webhook calls
+		if(!webhookCalls.isEmpty()) {
+			HttpClient client = HttpClient.newHttpClient();
+			for (Map.Entry<String, JSONObject> entry : webhookCalls.entrySet()) {
+				String url = entry.getKey();
+				JSONObject payload = entry.getValue();
+
+				HttpRequest request = HttpRequest.newBuilder()
+						.uri(URI.create(url))
+						.POST(HttpRequest.BodyPublishers.ofString(payload.toJSONString()))
+						.build();
+
+				try {
+					client.send(request,
+							HttpResponse.BodyHandlers.ofString());
+				} catch (Exception e) {
+                    System.out.println("Unable to call webhook");
+				}
+			}
+		}
+
 		System.out.println((messages.length - counter) + "/" + messageCount + " messages were handled.");
 		return returnStatement;
 	}
