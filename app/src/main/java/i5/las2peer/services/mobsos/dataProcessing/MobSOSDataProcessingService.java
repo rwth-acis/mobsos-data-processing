@@ -379,7 +379,8 @@ public class MobSOSDataProcessingService extends Service {
 
 		// perform webhook calls
 		if(!webhookCalls.isEmpty()) {
-			HttpClient client = HttpClient.newHttpClient();
+			HttpClient client = HttpClient.newBuilder()
+			.followRedirects(HttpClient.Redirect.ALWAYS).version(HttpClient.Version.HTTP_1_1).build();
 			for (Map.Entry<String, JSONObject> entry : webhookCalls.entrySet()) {
 				String url = entry.getKey();
 				JSONObject payload = entry.getValue();
