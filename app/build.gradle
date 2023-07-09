@@ -73,6 +73,7 @@ tasks.withType(Jar) {
 }
 
 javadoc {
+    dependsOn(':app:copyToLib')
     destinationDir = file("$projectDir/export/doc")
 }
 
