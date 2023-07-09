@@ -7,7 +7,7 @@ import org.json.simple.parser.ParseException;
 
 import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.logging.monitoring.MonitoringMessage;
-import i5.las2peer.logging.monitoring.EventMessage;
+import i5.las2peer.logging.monitoring.XESEventMessage;
 
 /**
  * 
@@ -23,7 +23,7 @@ import i5.las2peer.logging.monitoring.EventMessage;
  * @author Peter de Lange
  *
  */
-public class EventMessageWithEncryptedAgents extends MonitoringMessageWithEncryptedAgents {
+public class XESEventMessageWithEncryptedAgents extends MonitoringMessageWithEncryptedAgents {
 
 	private String caseId;
 	private String activityName;
@@ -39,13 +39,12 @@ public class EventMessageWithEncryptedAgents extends MonitoringMessageWithEncryp
 	 * @param hashRemarks  Whether you want to hash the remarks or not
 	 * 
 	 */
-	public EventMessageWithEncryptedAgents(EventMessage eventMessage, boolean hashRemarks) {
+	public XESEventMessageWithEncryptedAgents(XESEventMessage eventMessage, boolean hashRemarks) {
 		super(eventMessage, hashRemarks);
 		this.caseId = eventMessage.getCaseId();
 		this.activityName = eventMessage.getActivityName();
 		this.resourceId = eventMessage.getResourceId();
 		this.resourceType = eventMessage.getResourceType();
-
 	}
 
 	public String getCaseId() {
