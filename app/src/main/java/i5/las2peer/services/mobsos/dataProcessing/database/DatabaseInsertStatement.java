@@ -9,6 +9,8 @@ import org.json.simple.parser.JSONParser;
 
 import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.logging.monitoring.MonitoringMessage;
+import i5.las2peer.logging.monitoring.EventMessage;
+import i5.las2peer.services.mobsos.dataProcessing.EventMessageWithEncryptedAgents;
 import i5.las2peer.services.mobsos.dataProcessing.MonitoringMessageWithEncryptedAgents;
 
 /**
@@ -45,8 +47,15 @@ public class DatabaseInsertStatement {
    */
   public static PreparedStatement returnInsertStatement(Connection con, MonitoringMessage monitoringMessage,
       SQLDatabaseType databaseType, String table, boolean hashRemarks) throws Exception {
-    MonitoringMessageWithEncryptedAgents message = new MonitoringMessageWithEncryptedAgents(monitoringMessage,
-        hashRemarks);
+    MonitoringMessageWithEncryptedAgents message = null;
+    if (monitoringMessage instanceof EventMessage) {
+      message = new EventMessageWithEncryptedAgents((EventMessage) monitoringMessage,
+          hashRemarks);
+    } else {
+      message = new MonitoringMessageWithEncryptedAgents(monitoringMessage,
+          hashRemarks);
+    }
+
     if (databaseType == SQLDatabaseType.MySQL) {
       if (table.equals("MESSAGE")) {
         return returnMySQLMessageStatement(con, message);
@@ -94,8 +103,14 @@ public class DatabaseInsertStatement {
       MonitoringMessageWithEncryptedAgents message) {
     PreparedStatement statement = null;
     try {
-      statement = con.prepareStatement("INSERT INTO MESSAGE (`EVENT`, `TIME_STAMP`, `SOURCE_NODE`, `SOURCE_AGENT`, "
+      if (message instanceof EventMessageWithEncryptedAgents) {
+        statement = con.prepareStatement("INSERT INTO MESSAGE (`EVENT`, `TIME_STAMP`, `SOURCE_NODE`, `SOURCE_AGENT`, "
+            + "`DESTINATION_NODE`, `DESTINATION_AGENT`, `REMARKS` , `CASE_ID`, `ACTIVITY_NAME`, `RESOURCE`, `RESOURCE_TYPE`) VALUES (?,?,?,?,?,?,?,?,?,?,?);");
+      } else {
+        statement = con.prepareStatement("INSERT INTO MESSAGE (`EVENT`, `TIME_STAMP`, `SOURCE_NODE`, `SOURCE_AGENT`, "
           + "`DESTINATION_NODE`, `DESTINATION_AGENT`, `REMARKS`) VALUES (?,?,?,?,?,?,?);");
+      }
+
       statement.setString(1, message.getEvent().toString()); // EVENT
       statement.setString(2, new Timestamp(message.getTimestamp()).toString()); // TIME_STAMP
       if (message.getSourceNode() != null) {
@@ -122,6 +137,12 @@ public class DatabaseInsertStatement {
         statement.setString(7, message.getJsonRemarks()); // REMARKS AS JSON
       } else {
         statement.setString(7, "");
+      }
+      if (message instanceof EventMessageWithEncryptedAgents) {
+        statement.setString(8, ((EventMessageWithEncryptedAgents) message).getCaseId()); // CASE_ID
+        statement.setString(9, ((EventMessageWithEncryptedAgents) message).getActivityName()); // ACTIVITY_NAME
+        statement.setString(10, ((EventMessageWithEncryptedAgents) message).getResourceId()); // RESOURCE
+        statement.setString(11, ((EventMessageWithEncryptedAgents) message).getResourceType()); // RESOURCE_TYPE
       }
     } catch (Exception e) {
       // TODO LOG
