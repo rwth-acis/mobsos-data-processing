@@ -21,3 +21,4 @@ export
 mobsos-data-processing/output
 etc/launcher-configuration.ini
 app/output/*
+etc/i5.las2peer.services.mobsos.dataProcessing.MobSOSDataProcessingService.properties
