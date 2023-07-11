@@ -29,6 +29,7 @@ public class XESEventMessageWithEncryptedAgents extends MonitoringMessageWithEnc
 	private String activityName;
 	private String resourceId;
 	private String resourceType;
+	private String lifecyclePhase;
 
 	/**
 	 * 
@@ -45,6 +46,7 @@ public class XESEventMessageWithEncryptedAgents extends MonitoringMessageWithEnc
 		this.activityName = eventMessage.getActivityName();
 		this.resourceId = eventMessage.getResourceId();
 		this.resourceType = eventMessage.getResourceType();
+		this.lifecyclePhase = eventMessage.getLifecyclePhase();
 	}
 
 	public String getCaseId() {
@@ -61,5 +63,9 @@ public class XESEventMessageWithEncryptedAgents extends MonitoringMessageWithEnc
 
 	public String getResourceType() {
 		return resourceType;
+	}
+
+	public String getLifecyclePhase() {
+		return lifecyclePhase;
 	}
 }
