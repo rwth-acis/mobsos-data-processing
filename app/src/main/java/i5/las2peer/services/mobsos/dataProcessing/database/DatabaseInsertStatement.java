@@ -105,7 +105,7 @@ public class DatabaseInsertStatement {
     try {
       if (message instanceof XESEventMessageWithEncryptedAgents) {
         statement = con.prepareStatement("INSERT INTO MESSAGE (`EVENT`, `TIME_STAMP`, `SOURCE_NODE`, `SOURCE_AGENT`, "
-            + "`DESTINATION_NODE`, `DESTINATION_AGENT`, `REMARKS` , `CASE_ID`, `ACTIVITY_NAME`, `RESOURCE`, `RESOURCE_TYPE`,`LIFECYCLE_PHASE`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);");
+            + "`DESTINATION_NODE`, `DESTINATION_AGENT`, `REMARKS` , `CASE_ID`, `ACTIVITY_NAME`, `RESOURCE`, `RESOURCE_TYPE`,`LIFECYCLE_PHASE`, `TIME_OF_EVENT`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);");
       } else {
         statement = con.prepareStatement("INSERT INTO MESSAGE (`EVENT`, `TIME_STAMP`, `SOURCE_NODE`, `SOURCE_AGENT`, "
           + "`DESTINATION_NODE`, `DESTINATION_AGENT`, `REMARKS`) VALUES (?,?,?,?,?,?,?);");
@@ -144,6 +144,8 @@ public class DatabaseInsertStatement {
         statement.setString(10, ((XESEventMessageWithEncryptedAgents) message).getResourceId()); // RESOURCE
         statement.setString(11, ((XESEventMessageWithEncryptedAgents) message).getResourceType()); // RESOURCE_TYPE
         statement.setString(12, ((XESEventMessageWithEncryptedAgents) message).getLifecyclePhase()); // LIFECYCLE_PHASE
+        statement.setString(13,
+            new Timestamp(((XESEventMessageWithEncryptedAgents) message).getTimeOfEvent()).toString()); // TIME_OF_EVENT
       }
     } catch (Exception e) {
       // TODO LOG
