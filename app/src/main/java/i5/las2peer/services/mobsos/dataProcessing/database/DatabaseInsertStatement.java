@@ -144,8 +144,8 @@ public class DatabaseInsertStatement {
         statement.setString(10, ((XESEventMessageWithEncryptedAgents) message).getResourceId()); // RESOURCE
         statement.setString(11, ((XESEventMessageWithEncryptedAgents) message).getResourceType()); // RESOURCE_TYPE
         statement.setString(12, ((XESEventMessageWithEncryptedAgents) message).getLifecyclePhase()); // LIFECYCLE_PHASE
-        statement.setString(13,
-            new Timestamp(((XESEventMessageWithEncryptedAgents) message).getTimeOfEvent()).toString()); // TIME_OF_EVENT
+        statement.setTimestamp(13,
+            new Timestamp(((XESEventMessageWithEncryptedAgents) message).getTimeOfEvent())); // TIME_OF_EVENT
       }
     } catch (Exception e) {
       // TODO LOG
