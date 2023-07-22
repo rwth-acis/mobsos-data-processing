@@ -15,5 +15,8 @@ RUN dos2unix docker-entrypoint.sh
 USER las2peer
 RUN chmod +x gradlew && ./gradlew build --exclude-task test
 
+RUN dos2unix etc/i5.las2peer.services.mobsos.dataProcessing.MobSOSDataProcessingService.properties.sample 
+RUN mv etc/i5.las2peer.services.mobsos.dataProcessing.MobSOSDataProcessingService.properties.sample etc/i5.las2peer.services.mobsos.dataProcessing.MobSOSDataProcessingService.properties
+
 EXPOSE $LAS2PEER_PORT
 ENTRYPOINT ["/src/docker-entrypoint.sh"]
