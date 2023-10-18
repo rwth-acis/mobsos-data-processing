@@ -104,55 +104,58 @@ public class DatabaseInsertStatement {
     PreparedStatement statement = null;
     try {
       if (message instanceof XESEventMessageWithEncryptedAgents) {
-        statement = con.prepareStatement("INSERT INTO MESSAGE (`EVENT`, `TIME_STAMP`, `SOURCE_NODE`, `SOURCE_AGENT`, "
-            + "`DESTINATION_NODE`, `DESTINATION_AGENT`, `REMARKS` , `CASE_ID`, `ACTIVITY_NAME`, `RESOURCE`, `RESOURCE_TYPE`,`LIFECYCLE_PHASE`, `TIME_OF_EVENT`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);");
+        statement = con
+            .prepareStatement("INSERT INTO EVENTLOG (`CASE_ID`, `ACTIVITY_NAME`, `TIME_STAMP`, `EVENT_TYPE`, "
+                + "`RESOURCE`, `RESOURCE_TYPE`, `LIFECYCLE_PHASE` , `REMARKS`) VALUES (?,?,?,?,?,?,?,?);");
+
+        statement.setString(1, ((XESEventMessageWithEncryptedAgents) message).getCaseId()); // CASE_ID
+        statement.setString(2, ((XESEventMessageWithEncryptedAgents) message).getActivityName()); // ACTIVITY_NAME
+        statement.setString(3, new Timestamp(message.getTimestamp()).toString()); // TIME_STAMP
+        statement.setString(4, message.getEvent().toString()); // EVENT_TYPE
+        statement.setString(5, ((XESEventMessageWithEncryptedAgents) message).getResourceId()); // RESOURCE
+        statement.setString(6, ((XESEventMessageWithEncryptedAgents) message).getResourceType()); // RESOURCE_TYPE
+        statement.setString(7, ((XESEventMessageWithEncryptedAgents) message).getLifecyclePhase()); // LIFECYCLE_PHASE
+        statement.setString(8, message.getRemarks() != null ? message.getJsonRemarks() : ""); // REMARKS AS JSON
+        return statement;
       } else {
         statement = con.prepareStatement("INSERT INTO MESSAGE (`EVENT`, `TIME_STAMP`, `SOURCE_NODE`, `SOURCE_AGENT`, "
-          + "`DESTINATION_NODE`, `DESTINATION_AGENT`, `REMARKS`) VALUES (?,?,?,?,?,?,?);");
+            + "`DESTINATION_NODE`, `DESTINATION_AGENT`, `REMARKS`) VALUES (?,?,?,?,?,?,?);");
+        statement.setString(1, message.getEvent().toString()); // EVENT
+        statement.setString(2, new Timestamp(message.getTimestamp()).toString()); // TIME_STAMP
+        if (message.getSourceNode() != null) {
+          statement.setString(3, message.getSourceNode().substring(0, 12)); // SOURCE_NODE
+        } else {
+          statement.setString(3, "");
+        }
+        if (message.getSourceAgentId() != null) {
+          statement.setString(4, message.getSourceAgentId().toString()); // SOURCE_AGENT
+        } else {
+          statement.setString(4, "");
+        }
+        if (message.getDestinationNode() != null) {
+          statement.setString(5, message.getDestinationNode().substring(0, 12)); // DESTINATION_NODE
+        } else {
+          statement.setString(5, "");
+        }
+        if (message.getDestinationAgentId() != null) {
+          statement.setString(6, message.getDestinationAgentId().toString()); // DESTINATION_AGENT
+        } else {
+          statement.setString(6, "");
+        }
+        if (message.getRemarks() != null) {
+          statement.setString(7, message.getJsonRemarks()); // REMARKS AS JSON
+        } else {
+          statement.setString(7, "");
+        }
+        return statement;
       }
 
-      statement.setString(1, message.getEvent().toString()); // EVENT
-      statement.setString(2, new Timestamp(message.getTimestamp()).toString()); // TIME_STAMP
-      if (message.getSourceNode() != null) {
-        statement.setString(3, message.getSourceNode().substring(0, 12)); // SOURCE_NODE
-      } else {
-        statement.setString(3, "");
-      }
-      if (message.getSourceAgentId() != null) {
-        statement.setString(4, message.getSourceAgentId().toString()); // SOURCE_AGENT
-      } else {
-        statement.setString(4, "");
-      }
-      if (message.getDestinationNode() != null) {
-        statement.setString(5, message.getDestinationNode().substring(0, 12)); // DESTINATION_NODE
-      } else {
-        statement.setString(5, "");
-      }
-      if (message.getDestinationAgentId() != null) {
-        statement.setString(6, message.getDestinationAgentId().toString()); // DESTINATION_AGENT
-      } else {
-        statement.setString(6, "");
-      }
-      if (message.getRemarks() != null) {
-        statement.setString(7, message.getJsonRemarks()); // REMARKS AS JSON
-      } else {
-        statement.setString(7, "");
-      }
-      if (message instanceof XESEventMessageWithEncryptedAgents) {
-        statement.setString(8, ((XESEventMessageWithEncryptedAgents) message).getCaseId()); // CASE_ID
-        statement.setString(9, ((XESEventMessageWithEncryptedAgents) message).getActivityName()); // ACTIVITY_NAME
-        statement.setString(10, ((XESEventMessageWithEncryptedAgents) message).getResourceId()); // RESOURCE
-        statement.setString(11, ((XESEventMessageWithEncryptedAgents) message).getResourceType()); // RESOURCE_TYPE
-        statement.setString(12, ((XESEventMessageWithEncryptedAgents) message).getLifecyclePhase()); // LIFECYCLE_PHASE
-        statement.setTimestamp(13,
-            new Timestamp(((XESEventMessageWithEncryptedAgents) message).getTimeOfEvent())); // TIME_OF_EVENT
-      }
     } catch (Exception e) {
       // TODO LOG
       System.out.println(e.getMessage());
       e.printStackTrace();
+      return null;
     }
-    return statement;
   }
 
   /**
